@@ -1,0 +1,429 @@
+/* ============================================================================
+   CLEAN DESIGN SYSTEM — Component Styles for React
+   
+   Import this AFTER clean-tokens.css in your entry point:
+     import './styles/clean-tokens.css'
+     import './styles/clean-components.css'
+   
+   All classes use the `cl-` prefix to avoid conflicts with other CSS.
+   ============================================================================ */
+
+/* ── Base reset for Things3 components ─────────────────────────────────────── */
+[class^="cl-"] { box-sizing: border-box; }
+
+/* ── Sidebar ───────────────────────────────────────────────────────────────── */
+.cl-sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-default);
+  padding: 24px 12px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.cl-sidebar-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  padding: 0 14px;
+  margin-bottom: 6px;
+  margin-top: 20px;
+}
+
+.cl-sidebar-label:first-child { margin-top: 0; }
+
+/* ── NavItem ───────────────────────────────────────────────────────────────── */
+.cl-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 150ms var(--ease-default);
+  user-select: none;
+}
+
+.cl-nav-item:hover { background: var(--bg-hover); }
+
+.cl-nav-item--active {
+  background: var(--bg-selected);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.cl-nav-item--project { padding-left: 28px; }
+.cl-nav-item--project .cl-nav-item__icon { font-size: 16px; }
+
+.cl-nav-item__icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  transition: transform 200ms var(--ease-spring);
+}
+
+.cl-nav-item:hover .cl-nav-item__icon { transform: scale(1.1); }
+
+.cl-nav-item__badge {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+/* ── Checkbox ──────────────────────────────────────────────────────────────── */
+.cl-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--text-faint);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 200ms var(--ease-default);
+  flex-shrink: 0;
+  position: relative;
+  background: transparent;
+  padding: 0;
+}
+
+/* 44px touch target */
+.cl-checkbox::before {
+  content: '';
+  position: absolute;
+  inset: -11px;
+}
+
+.cl-checkbox:hover {
+  border-color: var(--accent-primary);
+  transform: scale(1.08);
+}
+
+.cl-checkbox--checked {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  animation: cl-checkbox-spring 300ms var(--ease-spring) forwards;
+}
+
+.cl-checkbox--checked::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) translate(-1px, -1px);
+  animation: cl-checkmark-draw 200ms var(--ease-bounce) 50ms both;
+}
+
+@keyframes cl-checkbox-spring {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.25); }
+  65%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+@keyframes cl-checkmark-draw {
+  0%   { opacity: 0; transform: rotate(45deg) translate(-1px, -1px) scale(0.5); }
+  100% { opacity: 1; transform: rotate(45deg) translate(-1px, -1px) scale(1); }
+}
+
+/* ── TaskList ──────────────────────────────────────────────────────────────── */
+.cl-task-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* ── TaskItem ──────────────────────────────────────────────────────────────── */
+.cl-task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-default);
+  transition: background 150ms var(--ease-default), opacity 400ms var(--ease-smooth);
+}
+
+.cl-task-item:last-child { border-bottom: none; }
+.cl-task-item:hover { background: var(--bg-hover); }
+
+.cl-task-item--completed { opacity: 0.5; }
+
+.cl-task-item__title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+  transition: color 250ms var(--ease-smooth);
+}
+
+.cl-task-item--completed .cl-task-item__title {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.cl-task-item__meta {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+.cl-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-sm);
+  transition: all 150ms var(--ease-default);
+}
+
+@media (hover: hover) {
+  .cl-card--hoverable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.cl-card--elevated { box-shadow: var(--shadow-md); }
+.cl-card--modal {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── StatCard ──────────────────────────────────────────────────────────────── */
+.cl-stat-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: all 150ms var(--ease-default);
+}
+
+@media (hover: hover) {
+  .cl-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.cl-stat-card__icon { font-size: 20px; margin-bottom: 16px; }
+
+.cl-stat-card__number {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.cl-stat-card__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+
+.cl-stat-card__change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.cl-stat-card__change--positive {
+  background: rgba(59, 210, 105, 0.14);
+  color: #27A854;
+}
+
+.cl-stat-card__change--negative {
+  background: rgba(231, 76, 60, 0.14);
+  color: #C0392B;
+}
+
+/* ── Tag ───────────────────────────────────────────────────────────────────── */
+.cl-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  transition: all 150ms var(--ease-default);
+}
+
+@media (hover: hover) {
+  .cl-tag:hover { filter: brightness(0.95); transform: translateY(-1px); }
+}
+
+.cl-tag--blue    { background: var(--tag-blue-bg);    color: var(--tag-blue-text); }
+.cl-tag--yellow  { background: var(--tag-yellow-bg);  color: var(--tag-yellow-text); }
+.cl-tag--red     { background: var(--tag-red-bg);     color: var(--tag-red-text); }
+.cl-tag--green   { background: var(--tag-green-bg);   color: var(--tag-green-text); }
+.cl-tag--pink    { background: var(--tag-pink-bg);    color: var(--tag-pink-text); }
+.cl-tag--purple  { background: var(--tag-purple-bg);  color: var(--tag-purple-text); }
+.cl-tag--orange  { background: var(--tag-orange-bg);  color: var(--tag-orange-text); }
+
+/* ── Button ────────────────────────────────────────────────────────────────── */
+.cl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 150ms var(--ease-default);
+  user-select: none;
+}
+
+.cl-btn:active { transform: translateY(0) scale(0.97); }
+
+.cl-btn--primary {
+  background: var(--accent-primary);
+  color: #fff;
+  box-shadow: var(--shadow-xs);
+}
+.cl-btn--primary:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+.cl-btn--ghost {
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1.5px solid var(--border-subtle);
+}
+.cl-btn--ghost:hover { background: var(--bg-hover); }
+
+.cl-btn--danger {
+  background: var(--accent-red);
+  color: #fff;
+  box-shadow: var(--shadow-xs);
+}
+.cl-btn--danger:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+.cl-btn--sm { font-size: 13px; padding: 7px 14px; }
+
+/* ── FAB (Magic Plus) ─────────────────────────────────────────────────────── */
+.cl-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all 150ms var(--ease-default);
+}
+
+.cl-fab:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); }
+.cl-fab:active { transform: scale(0.93); box-shadow: var(--shadow-sm); }
+
+/* ── Modal ─────────────────────────────────────────────────────────────────── */
+.cl-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 46, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Instant appearance — no transition on backdrop */
+}
+
+.cl-modal-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  max-width: 480px;
+  width: 90%;
+  padding: 28px;
+  animation: cl-modal-enter 350ms var(--ease-spring) both;
+}
+
+@keyframes cl-modal-enter {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.cl-modal-card--exit {
+  animation: cl-modal-exit 200ms var(--ease-default) both;
+}
+
+@keyframes cl-modal-exit {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.97); opacity: 0; }
+}
+
+/* ── Form Input ────────────────────────────────────────────────────────────── */
+.cl-input {
+  width: 100%;
+  height: 42px;
+  background: var(--bg-page);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.cl-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.15);
+}
+
+.cl-input::placeholder { color: var(--text-faint); }
+
+/* ── Stagger animation utility ─────────────────────────────────────────────── */
+@keyframes cl-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.cl-stagger { animation: cl-fade-up 400ms var(--ease-smooth) both; }
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Mobile ────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .cl-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-default); padding: 16px 12px; }
+  .cl-task-item { padding: 12px 14px; gap: 10px; }
+  .cl-input { height: 44px; font-size: 16px; }
+  .cl-modal-card { width: 94%; padding: 20px; border-radius: var(--radius-lg); }
+  .cl-stat-card__number { font-size: 26px; }
+}

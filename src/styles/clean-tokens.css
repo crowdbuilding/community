@@ -1,0 +1,275 @@
+/* ============================================================================
+   CLEAN DESIGN SYSTEM — Design Tokens
+   Version: 1.0.0
+   Inspired by Cultured Code's Clean (macOS/iOS)
+   
+   Usage: Import this file as the single source of truth for all visual tokens.
+   All values are derived from analysis of Clean's UI across platforms.
+   ============================================================================ */
+
+:root {
+  /* ──────────────────────────────────────────────────────────────────────────
+     COLORS — Sidebar Navigation Icons (vivid, used WITHOUT background)
+     These are the signature Clean colors used for sidebar category icons.
+     Each icon sits directly on the card/page background — no circle behind it.
+     ────────────────────────────────────────────────────────────────────────── */
+  --clean-inbox:        #4A90D9;   /* Blue — Inbox tray icon */
+  --clean-today:        #F4B400;   /* Golden yellow — Today star icon */
+  --clean-upcoming:     #E74C3C;   /* Red — Upcoming calendar icon */
+  --clean-anytime:      #3BD269;   /* Green — Anytime layers icon */
+  --clean-someday:      #C9A96E;   /* Warm amber — Someday couch icon */
+  --clean-logbook:      #8E929B;   /* Cool gray — Logbook book icon */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     COLORS — Accent & Status
+     ────────────────────────────────────────────────────────────────────────── */
+  --accent-primary:      #4A90D9;   /* Primary actions, links, FAB */
+  --accent-yellow:       #F4B400;   /* Stars, highlights, financial */
+  --accent-red:          #E74C3C;   /* Deadlines, overdue, destructive */
+  --accent-green:        #3BD269;   /* Success, completion, positive */
+  --accent-pink:         #F23578;   /* Urgent, alerts, hot tags */
+  --accent-orange:       #F09020;   /* Warnings, secondary warm */
+  --accent-purple:       #9B59B6;   /* Tags, categories, decorative */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     COLORS — Neutrals (Light Theme)
+     Clean uses a warm, barely-there gray background with pure white cards.
+     ────────────────────────────────────────────────────────────────────────── */
+  --bg-page:             #F7F8FA;   /* App background — warm gray */
+  --bg-surface:          #FFFFFF;   /* Cards, sidebar, modals, sheets */
+  --bg-hover:            #F2F3F6;   /* Hover state on list items */
+  --bg-active:           #EBEDF2;   /* Active/pressed state */
+  --bg-selected:         #E8EDF5;   /* Selected item background */
+
+  --text-primary:        #1A1A2E;   /* Headings, primary content — near-black with blue hint */
+  --text-secondary:      #5A5F72;   /* Body text, descriptions */
+  --text-tertiary:       #9BA1B0;   /* Labels, meta info, timestamps */
+  --text-faint:          #B0B5C3;   /* Inactive icons, chevrons, placeholders */
+  --text-disabled:       #CDD1DB;   /* Disabled text & controls */
+
+  --border-default:      #F0F1F4;   /* Dividers, list separators */
+  --border-subtle:       #E8E9EE;   /* Card borders (when needed) */
+  --border-focus:        #4A90D9;   /* Focus ring color */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     COLORS — Tag Tints (14% opacity backgrounds with matching text)
+     Clean uses soft tinted backgrounds for tags/pills — not solid fills.
+     ────────────────────────────────────────────────────────────────────────── */
+  --tag-blue-bg:         rgba(74, 144, 217, 0.14);
+  --tag-blue-text:       #3A7BC8;
+  --tag-yellow-bg:       rgba(244, 180, 0, 0.14);
+  --tag-yellow-text:     #B8870A;
+  --tag-red-bg:          rgba(231, 76, 60, 0.14);
+  --tag-red-text:        #C0392B;
+  --tag-green-bg:        rgba(59, 210, 105, 0.14);
+  --tag-green-text:      #27A854;
+  --tag-pink-bg:         rgba(242, 53, 120, 0.14);
+  --tag-pink-text:       #D42C6A;
+  --tag-purple-bg:       rgba(155, 89, 182, 0.14);
+  --tag-purple-text:     #8544A3;
+  --tag-orange-bg:       rgba(240, 144, 32, 0.14);
+  --tag-orange-text:     #C47718;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     TYPOGRAPHY
+     Clean uses the system font (SF Pro on Apple) with a clear hierarchy.
+     For web, we use a system font stack that matches the feel.
+     ────────────────────────────────────────────────────────────────────────── */
+  --font-family:         -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+                         "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:           "SF Mono", "Fira Code", "Cascadia Code", "JetBrains Mono",
+                         ui-monospace, monospace;
+
+  /* Type scale — derived from Clean's Dynamic Type support */
+  --text-hero:           36px;      /* Page title on large screens */
+  --text-title:          28px;      /* Section/view title */
+  --text-heading:        20px;      /* Card heading, project name */
+  --text-subheading:     17px;      /* List item title, to-do name */
+  --text-body:           15px;      /* Body text, notes, descriptions */
+  --text-small:          13px;      /* Meta text, timestamps, secondary info */
+  --text-tiny:           11px;      /* Tags, pills, badges */
+  --text-micro:          10px;      /* Overline labels, all-caps section headers */
+
+  /* Font weights */
+  --weight-regular:      400;
+  --weight-medium:       500;
+  --weight-semibold:     600;
+  --weight-bold:         700;
+
+  /* Line heights */
+  --leading-tight:       1.2;       /* Headings, titles */
+  --leading-normal:      1.5;       /* Body text */
+  --leading-relaxed:     1.65;      /* Long-form reading */
+
+  /* Letter spacing */
+  --tracking-tight:      -0.02em;   /* Titles */
+  --tracking-normal:     0em;       /* Body */
+  --tracking-wide:       0.06em;    /* Section labels (uppercase) */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     SPACING
+     Clean uses an 8px base grid with generous whitespace.
+     ────────────────────────────────────────────────────────────────────────── */
+  --space-0:             0px;
+  --space-1:             4px;
+  --space-2:             8px;
+  --space-3:             12px;
+  --space-4:             16px;
+  --space-5:             20px;
+  --space-6:             24px;
+  --space-8:             32px;
+  --space-10:            40px;
+  --space-12:            48px;
+  --space-16:            64px;
+
+  /* Semantic spacing */
+  --page-padding:        32px;      /* Desktop page margins */
+  --page-padding-mobile: 20px;      /* Mobile page margins */
+  --section-gap:         32px;      /* Between major sections */
+  --card-padding:        20px;      /* Inner padding of cards */
+  --card-gap:            16px;      /* Between cards in a grid */
+  --list-item-padding:   14px 20px; /* Padding inside list items */
+  --sidebar-width:       260px;     /* Sidebar navigation width */
+  --sidebar-collapsed:   56px;      /* Slim mode sidebar */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     BORDERS & RADII
+     Clean uses generously rounded corners, especially on cards and modals.
+     ────────────────────────────────────────────────────────────────────────── */
+  --radius-xs:           4px;       /* Checkboxes, small controls */
+  --radius-sm:           6px;       /* Tags, pills, inputs */
+  --radius-md:           10px;      /* Buttons, nav items, cards */
+  --radius-lg:           16px;      /* Large cards, panels */
+  --radius-xl:           20px;      /* Modals, sheets, expanded cards */
+  --radius-full:         9999px;    /* Pills, avatars, circular buttons */
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     SHADOWS
+     Clean defines surfaces by shadow depth, not borders.
+     All shadows have a subtle warm/blue tint matching --text-primary.
+     ────────────────────────────────────────────────────────────────────────── */
+  --shadow-xs:           0 1px 2px rgba(26, 26, 46, 0.04);
+  --shadow-sm:           0 1px 3px rgba(26, 26, 46, 0.06),
+                         0 1px 2px rgba(26, 26, 46, 0.03);
+  --shadow-md:           0 4px 12px rgba(26, 26, 46, 0.08),
+                         0 1px 3px rgba(26, 26, 46, 0.04);
+  --shadow-lg:           0 12px 40px rgba(26, 26, 46, 0.12),
+                         0 4px 12px rgba(26, 26, 46, 0.06);
+  --shadow-xl:           0 20px 60px rgba(26, 26, 46, 0.16),
+                         0 8px 20px rgba(26, 26, 46, 0.08);
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     TRANSITIONS & ANIMATION
+     Clean uses a custom-built animation toolkit with spring physics.
+     These CSS approximations capture the same feel.
+     ────────────────────────────────────────────────────────────────────────── */
+  
+  /* Durations */
+  --duration-instant:    0ms;       /* Backdrop appearance (always instant) */
+  --duration-fast:       100ms;     /* Active/pressed states */
+  --duration-normal:     150ms;     /* Hover states, color changes */
+  --duration-moderate:   250ms;     /* Checkbox, toggle, small reveals */
+  --duration-slow:       350ms;     /* Modal entrance, card expansion */
+  --duration-slower:     500ms;     /* Page transitions, complex reveals */
+
+  /* Easing curves */
+  --ease-default:        cubic-bezier(0.25, 0.1, 0.25, 1.0);   /* General purpose */
+  --ease-in:             cubic-bezier(0.42, 0, 1, 1);           /* Accelerate (exit) */
+  --ease-out:            cubic-bezier(0, 0, 0.58, 1);           /* Decelerate (enter) */
+  --ease-spring:         cubic-bezier(0.34, 1.56, 0.64, 1);    /* Spring overshoot — modal/card entrance */
+  --ease-bounce:         cubic-bezier(0.18, 1.25, 0.40, 1.0);  /* Soft bounce — checkbox complete */
+  --ease-smooth:         cubic-bezier(0.4, 0.0, 0.2, 1.0);     /* Material-like smooth */
+
+  /* Composite transitions */
+  --transition-hover:    all 150ms var(--ease-default);
+  --transition-active:   all 100ms var(--ease-default);
+  --transition-spring:   all 350ms var(--ease-spring);
+  --transition-color:    color 150ms var(--ease-default),
+                         background-color 150ms var(--ease-default);
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     Z-INDEX SCALE
+     ────────────────────────────────────────────────────────────────────────── */
+  --z-base:              0;
+  --z-dropdown:          100;
+  --z-sticky:            200;
+  --z-overlay:           300;
+  --z-modal:             400;
+  --z-popover:           500;
+  --z-tooltip:           600;
+  --z-toast:             700;
+
+  /* ──────────────────────────────────────────────────────────────────────────
+     ICON SIZING
+     Font Awesome icons sit directly on surfaces — no background circles.
+     
+     FONT LOADING: This design system uses self-hosted Font Awesome Pro woff2 
+     files. Place fa-solid-900.woff2 and fa-regular-400.woff2 in a /fonts/ 
+     directory and include the @font-face declarations below, OR use the 
+     styleguide.html which has fonts embedded as base64.
+     ────────────────────────────────────────────────────────────────────────── */
+  --icon-xs:             14px;
+  --icon-sm:             16px;
+  --icon-md:             20px;
+  --icon-lg:             24px;
+  --icon-xl:             32px;
+  --icon-sidebar:        20px;      /* Sidebar nav icon size */
+}
+
+/* ============================================================================
+   DARK THEME TOKENS
+   Clean has a beautiful dark mode. Override neutrals only.
+   ============================================================================ */
+
+[data-theme="dark"] {
+  --bg-page:             #1C1C1E;
+  --bg-surface:          #2C2C2E;
+  --bg-hover:            #3A3A3C;
+  --bg-active:           #48484A;
+  --bg-selected:         #3A3A4C;
+
+  --text-primary:        #F5F5F7;
+  --text-secondary:      #A1A1A6;
+  --text-tertiary:       #6E6E73;
+  --text-faint:          #545458;
+  --text-disabled:       #3A3A3C;
+
+  --border-default:      #38383A;
+  --border-subtle:       #48484A;
+
+  --shadow-xs:           0 1px 2px rgba(0, 0, 0, 0.20);
+  --shadow-sm:           0 1px 3px rgba(0, 0, 0, 0.30),
+                         0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-md:           0 4px 12px rgba(0, 0, 0, 0.35),
+                         0 1px 3px rgba(0, 0, 0, 0.20);
+  --shadow-lg:           0 12px 40px rgba(0, 0, 0, 0.45),
+                         0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-xl:           0 20px 60px rgba(0, 0, 0, 0.55),
+                         0 8px 20px rgba(0, 0, 0, 0.30);
+}
+
+/* ============================================================================
+   FONT AWESOME — Self-Hosted @font-face
+   
+   Place these woff2 files in your project's fonts/ directory:
+     - fa-solid-900.woff2
+     - fa-regular-400.woff2
+   
+   Adjust the url() paths to match your project structure.
+   ============================================================================ */
+
+@font-face {
+  font-family: "Font Awesome 6 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url(./fonts/fa-solid-900.woff2) format("woff2");
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Free";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(./fonts/fa-regular-400.woff2) format("woff2");
+}

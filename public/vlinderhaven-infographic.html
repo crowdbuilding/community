@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vlinderhaven — Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Funnel+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --card-hover: #fafbfc;
+    --text: #1a1a2e;
+    --sub: #5a5f72;
+    --muted: #9ba1b0;
+    --faint: #b0b5c3;
+    --line: #f0f1f4;
+
+    /* Clean DS accents + purple */
+    --blue: #4A90D9;
+    --orange: #F09020;
+    --green: #3BD269;
+    --hotpink: #F23578;
+    --yellow: #F4B400;
+    --purple: #7C5CFC;
+    --rose: #F5B0C5;
+
+    /* Dot semantics */
+    --dot-step: var(--blue);
+    --dot-step-ring: rgba(74,144,217,0.2);
+    --dot-milestone: var(--orange);
+    --dot-milestone-ring: rgba(240,144,32,0.2);
+    --dot-key: var(--hotpink);
+    --dot-key-ring: rgba(242,53,120,0.18);
+
+    /* Tag backgrounds */
+    --blue-bg: rgba(74,144,217,0.10);
+    --orange-bg: rgba(240,144,32,0.10);
+    --hotpink-bg: rgba(242,53,120,0.10);
+    --green-bg: rgba(59,210,105,0.10);
+    --muted-bg: rgba(155,161,176,0.10);
+
+    --shadow-s1: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+    --shadow-s2: 0 4px 14px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
+
+    --font-display: 'Funnel Display', 'Georgia', serif;
+    --font-body: 'Albert Sans', 'Helvetica Neue', 'Segoe UI', sans-serif;
+  }
+
+  /* ── Dark mode ── */
+  .dark {
+    --bg: #000000;
+    --card: #111118;
+    --card-hover: #1a1a24;
+    --text: #e8e9ed;
+    --sub: #a0a4b0;
+    --muted: #6b7080;
+    --faint: #4a4e5c;
+    --line: #2a2b35;
+
+    --dot-step-ring: rgba(74,144,217,0.15);
+    --dot-milestone-ring: rgba(240,144,32,0.15);
+    --dot-key-ring: rgba(242,53,120,0.12);
+
+    --blue-bg: rgba(74,144,217,0.15);
+    --orange-bg: rgba(240,144,32,0.12);
+    --hotpink-bg: rgba(242,53,120,0.12);
+    --green-bg: rgba(59,210,105,0.12);
+    --muted-bg: rgba(155,161,176,0.12);
+
+    --shadow-s1: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+    --shadow-s2: 0 4px 14px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    background-color: var(--bg);
+    min-height: 100%;
+  }
+  html {
+    color-scheme: light;
+  }
+  .dark, .dark html {
+    color-scheme: dark;
+  }
+  body {
+    font-family: var(--font-body);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+
+  /* Dark mode toggle */
+  .mode-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    border: none;
+    background: var(--card);
+    box-shadow: var(--shadow-s2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .mode-toggle:hover { box-shadow: var(--shadow-s2); }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 36px 16px 64px;
+  }
+
+  /* Header */
+  .hdr { text-align: center; margin-bottom: 32px; }
+  .hdr__eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+  }
+  .hdr__title {
+    font-family: var(--font-display);
+    font-size: 34px; font-weight: 700; color: var(--text);
+  }
+  .hdr__sub {
+    font-size: 17px; color: var(--sub); margin-top: 8px; line-height: 1.5;
+    max-width: 540px; margin-left: auto; margin-right: auto;
+  }
+
+  /* Phase block */
+  .phase {
+    margin-bottom: 0;
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow-s1);
+    transition: box-shadow 0.3s ease, background 0.4s ease;
+    overflow: hidden;
+  }
+  .phase:hover, .phase.open {
+    box-shadow: var(--shadow-s2);
+  }
+  .phase__head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .phase__head:hover {
+    background: var(--card-hover);
+  }
+
+  .phase__num {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 19px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .phase__info { flex: 1; min-width: 0; }
+  .phase__name {
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.25;
+  }
+  .phase__period {
+    font-size: 15px; color: var(--muted); font-weight: 500; margin-top: 2px;
+  }
+  .phase__meta {
+    display: flex; gap: 12px; flex-shrink: 0; align-items: center;
+  }
+  .phase__members {
+    font-size: 14px; color: var(--muted); font-weight: 600;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .phase__members svg { width: 18px; height: 18px; opacity: 0.4; }
+  .phase__chevron {
+    width: 22px; height: 22px; color: var(--faint);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+  }
+  .phase.open .phase__chevron { transform: rotate(180deg); color: var(--sub); }
+
+  /* Phase body */
+  .phase__body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .phase.open .phase__body {
+    grid-template-rows: 1fr;
+  }
+  .phase__body-inner {
+    overflow: hidden;
+  }
+  .phase__items {
+    padding: 0 20px 16px;
+  }
+
+  /* Item row */
+  .it {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 8px;
+    margin: 0 -4px;
+  }
+  .it + .it {
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+  }
+  .it:first-child { border-radius: 8px 8px 0 0; }
+  .it:last-child { border-radius: 0 0 8px 8px; }
+  .it:only-child { border-radius: 8px; }
+  .it:hover { background: var(--card-hover); }
+
+  /* Dot */
+  .it__dot {
+    flex-shrink: 0;
+    border-radius: 50%;
+    margin-top: 5px;
+    position: relative;
+  }
+  .it__dot--step {
+    width: 12px; height: 12px;
+    background: var(--dot-step);
+    border: 2.5px solid var(--dot-step-ring);
+  }
+  .it__dot--milestone {
+    width: 16px; height: 16px;
+    background: var(--dot-milestone);
+    border: 2.5px solid var(--dot-milestone-ring);
+    margin-top: 2px;
+  }
+  .it__dot--milestone::after {
+    content: ''; position: absolute;
+    top: 50%; left: 50%; width: 5px; height: 5px;
+    margin: -2.5px 0 0 -2.5px;
+    border-radius: 50%; background: white; opacity: 0.8;
+  }
+  .it__dot--key {
+    width: 20px; height: 20px;
+    background: var(--dot-key);
+    border: 3px solid var(--dot-key-ring);
+    margin-top: 1px;
+  }
+  .it__dot--key::after {
+    content: ''; position: absolute;
+    top: 50%; left: 50%; width: 6px; height: 6px;
+    margin: -3px 0 0 -3px;
+    border-radius: 50%; background: white; opacity: 0.85;
+  }
+
+  .it__content { flex: 1; min-width: 0; }
+  .it__top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .it__title {
+    font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.35;
+  }
+  .it__title--key { color: var(--hotpink); font-weight: 700; }
+
+  .it__tag {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 5px;
+    white-space: nowrap;
+  }
+  .tag-workshop { background: var(--blue-bg); color: var(--blue); }
+  .tag-milestone { background: var(--orange-bg); color: var(--orange); }
+  .tag-key { background: var(--hotpink-bg); color: var(--hotpink); }
+  .tag-formeel { background: var(--green-bg); color: var(--green); }
+  .tag-team { background: var(--muted-bg); color: var(--muted); }
+
+  .it__snippet {
+    font-size: 15px; color: var(--muted); line-height: 1.45; margin-top: 4px;
+  }
+
+  /* Expandable detail */
+  .it__detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.25s ease;
+    opacity: 0;
+  }
+  .it.open .it__detail {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .it__detail-inner { overflow: hidden; }
+  .it__detail-text {
+    font-size: 16px; color: var(--sub); line-height: 1.6;
+    padding-top: 12px; margin-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .it__chevron {
+    width: 18px; height: 18px; color: var(--faint); flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-top: 5px;
+  }
+  .it.open .it__chevron { transform: rotate(180deg); color: var(--sub); }
+
+  /* Special block (Sociaal Bestek) */
+  .it--special .it__dot {
+    width: 12px; height: 12px;
+    background: var(--green-bg);
+    border: 1.5px solid var(--green);
+    border-radius: 3px;
+    margin-top: 5px;
+  }
+  .it--special .it__title { color: var(--green); }
+
+  /* Connector line between phases — touches both cards */
+  .connector {
+    display: flex; justify-content: center;
+    position: relative;
+    height: 28px;
+    margin-top: -1px;
+    margin-bottom: -1px;
+    z-index: 0;
+  }
+  .connector::before {
+    content: '';
+    width: 2px; height: 100%;
+    background: var(--line);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .page { padding: 24px 12px 48px; }
+    .phase__head { padding: 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="mode-toggle" onclick="toggleDark()" id="modeBtn" title="Donkere/lichte modus">🌙</button>
+
+<div class="page">
+  <div class="hdr">
+    <div class="hdr__eyebrow">Ontwikkeltraject</div>
+    <div class="hdr__title">Vlinderhaven Roadmap</div>
+    <div class="hdr__sub">Van structuurontwerp tot oplevering — workshops, milestones en formele stappen in zes fasen.</div>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+const chevronSvg = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>`;
+const peopleSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+
+const PHASES = [
+  {
+    num: '1', name: 'Definitieve selectiefase', sub: 'Structuur Ontwerp',
+    period: 'Maart – Oktober 2025', color: '#4A90D9', members: 30,
+    items: [
+      { t: 'Start SO-fase', s: 'Lancering wervingscampagne OutForever', type: 'milestone', d: 'De selectiefase begint met een brede wervingscampagne om toekomstige bewoners te bereiken. Het doel is een diverse groep samen te brengen die de basis vormt voor de gemeenschap.' },
+      { t: 'Workshop 0: WoonConcept & Kernwaarden', s: 'Gezamenlijk de fundamenten leggen', type: 'workshop', d: 'Bewoners bepalen samen hun kernwaarden en hoe die vertaald worden naar het woonconcept. Thema\'s als duurzaamheid, gemeenschapszin en diversiteit.' },
+      { t: 'Formatie teams', s: 'Welzijn & Zorg (2–4), Bouwteam (3–6), Ledenteam (2–4)', type: 'team', d: 'Drie werkgroepen worden geformeerd: welzijn & zorg voor sociale cohesie, het bouwteam voor technische begeleiding, en het ledenteam voor communicatie en werving.' },
+      { t: 'Kennismakingsbijeenkomst', s: 'Groepsvorming intensiveren', type: 'milestone', d: 'Een informele bijeenkomst waar alle geïnteresseerden elkaar leren kennen. Vertrouwen opbouwen en groepsdynamiek versterken.' },
+      { t: 'Workshop 1: Collectieve Ruimtes', s: '"Wat willen we delen?"', type: 'workshop', d: 'Van gemeenschappelijke tuin tot gedeelde werkplekken, wasruimte of logeerkamer — hier worden de collectieve ambities concreet.' },
+      { t: 'Workshop 2: Welzijn & Gezondheid', s: 'Omkijken naar elkaar', type: 'workshop', d: 'Zorgconcepten, mantelzorgondersteuning en welzijnsvoorzieningen die in het ontwerp geïntegreerd kunnen worden.' },
+      { t: 'Workshop 3: Ontwerpkeuzes', s: 'Semi-open of gesloten, collectief en privaat', type: 'workshop', d: 'De balans tussen openheid en privacy. Hoe verhouden collectieve ruimtes zich tot privéwoningen?' },
+      { t: 'Sociaal Bestek', s: 'Vastlegging sociale afspraken', type: 'special', d: 'Formeel document dat de sociale afspraken, waarden en ambities vastlegt. Leidraad voor het verdere ontwerpproces.' },
+      { t: 'Workshop 4: Structuur en Leven', s: 'Groene binnentuin, flexibiliteit in SO', type: 'workshop', d: 'Het structuurontwerp vertaald naar leefbaarheid: groene buitenruimtes en flexibiliteit voor toekomstige aanpassingen.' },
+      { t: 'SO indieningdocumenten vaststellen', s: 'Formele documenten structuurontwerp', type: 'key', d: 'Cruciale milestone: het SO vormt de basis voor het verdere ontwerp en de vergunningaanvraag.' },
+    ]
+  },
+  {
+    num: '2', name: 'Ontwikkelfase', sub: 'Voorlopig Ontwerp',
+    period: 'Januari – April 2026', color: '#F09020', members: 71,
+    items: [
+      { t: 'Formalisering Vereniging Vlinderhaven', s: 'Van informeel naar formeel', type: 'formeel', d: 'De informele bewonersgroep wordt een officiële vereniging. Statuten opgesteld, bestuur gekozen, formele structuur vastgelegd.' },
+      { t: 'Workshop 5: Collectieve ruimten en ontsluiting', s: 'Collectiviteit en programmering', type: 'workshop', d: 'Hoe worden gedeelde voorzieningen ontsloten? Welke programmering krijgen ze? Hoe wordt collectief gebruik georganiseerd?' },
+      { t: 'Workshop 6: Gevelprincipes', s: 'Materialisatie en architectuur', type: 'workshop', d: 'Welke materialen worden gebruikt? Wat is de architectonische identiteit van Vlinderhaven? Duurzaamheid en esthetiek komen samen.' },
+      { t: 'Workshop 7: Installatieprincipes', s: 'Ambities bepalen', type: 'workshop', d: 'Energiesystemen, warmtevoorziening, ventilatie en duurzaamheidsdoelen. BENG-normen en circulariteit staan centraal.' },
+      { t: 'Voorlopige woningvoorkeur', s: 'Eerste indicatie woningkeuze', type: 'key', d: 'Bewoners geven een eerste indicatie van hun woningvoorkeur. Het project wordt persoonlijk.' },
+      { t: 'VO indieningdocumenten vaststellen', s: 'Formele documentatie VO', type: 'milestone', d: 'Alle documenten voor het Voorlopig Ontwerp verzameld en vastgesteld voor gemeente en toetsende instanties.' },
+      { t: 'VO-toets gemeente + BENG/MPG', s: 'Gemeentelijke en duurzaamheidstoetsing', type: 'formeel', d: 'Toetsing op BENG (energieprestatie) en MPG (milieuprestatie). Eventuele aanpassingen worden verwerkt.' },
+    ]
+  },
+  {
+    num: '3', name: 'Ontwikkelfase', sub: 'Definitief Ontwerp',
+    period: 'Mei – November 2026', color: '#3BD269', members: 108,
+    items: [
+      { t: 'Reserveringsovereenkomst', s: 'Bewoners committeren zich formeel', type: 'formeel', d: 'Bewoners leggen hun intentie vast om een woning af te nemen. Financieel en emotioneel belangrijk moment.' },
+      { t: 'Workshop 8: Definitieve keuze installaties', s: 'Technische systemen vastleggen', type: 'workshop', d: 'Warmtepompen, zonnepanelen, ventilatiesystemen en slimme gebouwtechniek.' },
+      { t: 'Workshop 9: VvE Huishoudelijk Reglement', s: 'Beheer & Exploitatie', type: 'workshop', d: 'Kostenverdeling, beheer collectieve ruimtes, regels en afspraken voor de VvE.' },
+      { t: 'Individuele woningontwerpgesprekken', s: 'Persoonlijke afstemming per huishouden', type: 'milestone', d: 'Individuele gesprekken over woningwensen: indelingskeuzes, afwerkingsniveau en meerwerk-opties.' },
+      { t: 'Definitieve woningvoorkeur', s: 'Definitieve woningkeuze', type: 'key', d: 'Bewoners maken hun definitieve keuze. De toewijzing wordt vastgelegd — het moment waarop de woning "van jou" wordt.' },
+      { t: 'Maximale VON-prijs', s: 'Vrij-op-naam prijs vastgesteld', type: 'milestone', d: 'Financiële zekerheid voor bewoners en basis voor hypotheekaanvragen.' },
+      { t: 'DO indieningdocumenten vaststellen', s: 'DO-pakket gereed', type: 'key', d: 'Het complete Definitief Ontwerp afgerond. Alle technische, financiële en sociale onderdelen uitgewerkt.' },
+      { t: 'DO-toets gemeente + BENG/MPG', s: 'Finale gemeentelijke toetsing', type: 'formeel', d: 'Beoordeling op ruimtelijke, energetische en milieutechnische criteria.' },
+    ]
+  },
+  {
+    num: '4', name: 'Vergunningsfase', sub: 'Uitwerking',
+    period: 'December 2026 – Februari 2027', color: '#F23578', members: 122,
+    items: [
+      { t: 'Indiening Omgevingsvergunning', s: 'Formele aanvraag bij de gemeente', type: 'key', d: 'Een van de belangrijkste formele stappen — zonder vergunning kan er niet gebouwd worden.' },
+      { t: 'Documenteren omgevingsvergunning', s: 'Aanvullende documentatie', type: 'milestone', d: 'Eventueel gevraagde aanvullende documenten. De gemeente kan verduidelijking vragen over specifieke onderdelen.' },
+    ]
+  },
+  {
+    num: '5', name: 'Uitvoeringsfase', sub: 'Technisch Ontwerp',
+    period: 'Februari – April 2027', color: '#F4B400', members: null,
+    items: [
+      { t: 'Showroom-meetings', s: 'Materialen en afwerkingen bekijken', type: 'milestone', d: 'Bewoners bekijken materialen, kleuren en afwerkingen in het echt en maken definitieve keuzes.' },
+      { t: 'Verkregen Omgevingsvergunning', s: 'De vergunning is verleend!', type: 'key', d: 'Een feestelijk moment — het project mag officieel gebouwd worden.' },
+      { t: 'TO fasedocumenten', s: 'Technisch ontwerp voor de aannemer', type: 'formeel', d: 'Gedetailleerde bouwtekeningen en bestekken waarop de bouw gebaseerd wordt.' },
+      { t: 'Acceptatie erfpacht', s: 'Erfpachtovereenkomst getekend', type: 'formeel', d: 'De erfpachtovereenkomst met de gemeente regelt het gebruik van de grond.' },
+    ]
+  },
+  {
+    num: '6', name: 'Bouw- en inbouwfase', sub: '',
+    period: 'Mei 2027 – Oplevering 2029', color: '#7C5CFC', members: 150,
+    items: [
+      { t: 'Start bouw', s: 'Eerste werkzaamheden op de bouwplaats', type: 'key', d: 'Na jaren van voorbereiding begint de daadwerkelijke bouw. De droom wordt werkelijkheid.' },
+      { t: 'Kijkdagen', s: 'Bewoners bezoeken de bouwplaats', type: 'milestone', d: 'Bewoners zien de voortgang met eigen ogen. Je ziet je toekomstige thuis vorm krijgen.' },
+      { t: 'Oplevering', s: 'Vlinderhaven is klaar!', type: 'key', d: 'Het gebouw wordt opgeleverd. Na een lang traject is Vlinderhaven een feit. Welkom thuis!' },
+    ]
+  }
+];
+
+function tagLabel(type) {
+  return { workshop:'Workshop', milestone:'Milestone', key:'Mijlpaal', formeel:'Formeel', team:'Team', special:'Document' }[type] || '';
+}
+function tagClass(type) {
+  if (type === 'special') return 'tag-formeel';
+  return 'tag-' + type;
+}
+function dotClass(type) {
+  if (type === 'key') return 'it__dot--key';
+  if (type === 'milestone') return 'it__dot--milestone';
+  return 'it__dot--step';
+}
+
+const app = document.getElementById('app');
+
+PHASES.forEach((ph, pi) => {
+  // Connector between phases
+  if (pi > 0) {
+    const conn = document.createElement('div');
+    conn.className = 'connector';
+    app.appendChild(conn);
+  }
+
+  const section = document.createElement('div');
+  section.className = 'phase';
+
+  section.innerHTML = `
+    <div class="phase__head" onclick="togglePhase(this)">
+      <div class="phase__num" style="background:${ph.color};color:${ph.color === '#3BD269' || ph.color === '#F4B400' ? '#1a1a2e' : 'white'}">${ph.num}</div>
+      <div class="phase__info">
+        <div class="phase__name">${ph.name}${ph.sub ? ' — ' + ph.sub : ''}</div>
+        <div class="phase__period">${ph.period}</div>
+      </div>
+      <div class="phase__meta">
+        ${ph.members ? `<div class="phase__members">${peopleSvg}${ph.members}</div>` : ''}
+        <div class="phase__chevron">${chevronSvg}</div>
+      </div>
+    </div>
+    <div class="phase__body">
+      <div class="phase__body-inner">
+        <div class="phase__items">
+          ${ph.items.map(it => `
+            <div class="it${it.type === 'special' ? ' it--special' : ''}" onclick="toggleItem(event, this)">
+              <div class="it__dot ${it.type === 'special' ? '' : dotClass(it.type)}"></div>
+              <div class="it__content">
+                <div class="it__top">
+                  <span class="it__title${it.type === 'key' ? ' it__title--key' : ''}">${it.t}</span>
+                  <span class="it__tag ${tagClass(it.type)}">${tagLabel(it.type)}</span>
+                </div>
+                ${it.s ? `<div class="it__snippet">${it.s}</div>` : ''}
+                <div class="it__detail">
+                  <div class="it__detail-inner">
+                    <div class="it__detail-text">${it.d}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="it__chevron">${chevronSvg}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  app.appendChild(section);
+});
+
+// Open first phase by default
+document.querySelector('.phase').classList.add('open');
+
+function togglePhase(head) {
+  const phase = head.closest('.phase');
+  phase.classList.toggle('open');
+}
+
+function toggleItem(e, el) {
+  e.stopPropagation();
+  el.classList.toggle('open');
+}
+
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  document.documentElement.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  document.getElementById('modeBtn').textContent = isDark ? '☀️' : '🌙';
+  const bg = isDark ? '#000000' : '#f7f8fa';
+  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+  document.documentElement.style.backgroundColor = bg;
+  document.body.style.backgroundColor = bg;
+}
+</script>
+</body>
+</html>
