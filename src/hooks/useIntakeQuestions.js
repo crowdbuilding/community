@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 
 export default function useIntakeQuestions(projectId) {
   const [questions, setQuestions] = useState([])
@@ -17,7 +18,7 @@ export default function useIntakeQuestions(projectId) {
       .select('*')
       .eq('project_id', projectId)
       .order('sort_order')
-    if (error) console.error('Fetch intake questions error:', error)
+    if (error) logger.error('useIntakeQuestions.fetch', error)
     setQuestions(data || [])
     setLoading(false)
   }
@@ -33,20 +34,20 @@ export default function useIntakeQuestions(projectId) {
       sort_order: maxOrder + 1,
     }).select().single()
 
-    if (error) { console.error('Add question error:', error); return null }
+    if (error) { logger.error('useIntakeQuestions.addQuestion', error); throw new Error(friendlyError(error)) }
     setQuestions(prev => [...prev, data])
     return data
   }
 
   async function updateQuestion(id, updates) {
     const { error } = await supabase.from('intake_questions').update(updates).eq('id', id)
-    if (error) { console.error('Update question error:', error); return }
+    if (error) { logger.error('useIntakeQuestions.updateQuestion', error); throw new Error(friendlyError(error)) }
     setQuestions(prev => prev.map(q => q.id === id ? { ...q, ...updates } : q))
   }
 
   async function deleteQuestion(id) {
     const { error } = await supabase.from('intake_questions').delete().eq('id', id)
-    if (error) { console.error('Delete question error:', error); return }
+    if (error) { logger.error('useIntakeQuestions.deleteQuestion', error); throw new Error(friendlyError(error)) }
     setQuestions(prev => prev.filter(q => q.id !== id))
   }
 

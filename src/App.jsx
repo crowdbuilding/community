@@ -6,6 +6,7 @@ import { useProject } from './contexts/ProjectContext'
 import Layout from './components/Layout'
 import { ConfirmProvider } from './components/ConfirmDialog'
 import ErrorBoundary from './components/ErrorBoundary'
+import { ToastProvider } from './components/Toast'
 import Login from './views/Login'
 import AuthCallback from './views/AuthCallback'
 import Dashboard from './views/Dashboard'
@@ -49,7 +50,7 @@ function AuthGuard({ children }) {
     // Remember where the user wanted to go
     const path = window.location.pathname
     if (path && path !== '/' && path !== '/login') {
-      localStorage.setItem('redirectAfterLogin', path)
+      try { localStorage.setItem('redirectAfterLogin', path) } catch {}
     }
     return <Navigate to="/login" replace />
   }
@@ -102,6 +103,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
+          <ToastProvider>
           <ConfirmProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -134,6 +136,7 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           </ConfirmProvider>
+          </ToastProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>

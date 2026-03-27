@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -29,7 +30,7 @@ export function useDocuments() {
   async function uploadDocument({ title, description, category, file }) {
     const path = `documents/${projectId}/${Date.now()}-${file.name}`
     const { error: uploadErr } = await supabase.storage.from('project-files').upload(path, file)
-    if (uploadErr) throw uploadErr
+    if (uploadErr) { logger.error('useDocuments.upload', uploadErr); throw new Error(friendlyError(uploadErr)) }
 
     const { data: { publicUrl } } = supabase.storage.from('project-files').getPublicUrl(path)
 
@@ -44,7 +45,7 @@ export function useDocuments() {
       file_type: file.type,
       uploaded_by: user?.id,
     })
-    if (error) throw error
+    if (error) { logger.error('useDocuments.upload', error); throw new Error(friendlyError(error)) }
     fetch()
   }
 

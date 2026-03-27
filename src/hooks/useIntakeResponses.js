@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 
 export default function useIntakeResponses(projectId) {
   const [responses, setResponses] = useState([])
@@ -17,7 +18,7 @@ export default function useIntakeResponses(projectId) {
       .select('*')
       .eq('project_id', projectId)
       .order('created_at', { ascending: false })
-    if (error) console.error('Fetch intake responses error:', error)
+    if (error) logger.error('useIntakeResponses.fetch', error)
     setResponses(data || [])
     setLoading(false)
   }
@@ -27,7 +28,7 @@ export default function useIntakeResponses(projectId) {
     if (status === 'invited') updates.invited_at = new Date().toISOString()
 
     const { error } = await supabase.from('intake_responses').update(updates).eq('id', id)
-    if (error) { console.error('Update response status error:', error); return false }
+    if (error) { logger.error('useIntakeResponses.updateStatus', error); throw new Error(friendlyError(error)) }
     setResponses(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r))
     return true
   }

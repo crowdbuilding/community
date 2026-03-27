@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -22,7 +23,7 @@ export function useProfessionalInvites() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching invites:', error)
+      logger.error('useProfessionalInvites.fetch', error)
     } else {
       setInvites(data || [])
     }
@@ -46,7 +47,7 @@ export function useProfessionalInvites() {
       .select('*, inviter:profiles!invited_by(full_name)')
       .single()
 
-    if (error) throw error
+    if (error) { logger.error('useProfessionalInvites.createInvite', error); throw new Error(friendlyError(error)) }
     setInvites(prev => [data, ...prev])
     return data
   }
@@ -57,7 +58,7 @@ export function useProfessionalInvites() {
       .update({ status: 'revoked' })
       .eq('id', id)
 
-    if (error) throw error
+    if (error) { logger.error('useProfessionalInvites.revokeInvite', error); throw new Error(friendlyError(error)) }
     setInvites(prev => prev.map(i => i.id === id ? { ...i, status: 'revoked' } : i))
   }
 

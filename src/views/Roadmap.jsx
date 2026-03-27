@@ -252,7 +252,7 @@ export default function Roadmap() {
   const { phases, loading, addPhase, updatePhase, removePhase, addItem, updateItem, removeItem, toggleItemDone } = useRoadmap(project?.id)
   const isEditor = canDo(role, 'edit_phases')
 
-  if (loading) return <div className="loading-page"><p>Laden...</p></div>
+  if (loading) return <div className="skeleton-page" style={{ padding: 32 }}><div className="skeleton-line" style={{ width: 200, height: 26 }} /><div style={{ height: 16 }} />{[1,2,3].map(i => <div key={i} className="skeleton-card" style={{ marginBottom: 12 }}><div className="skeleton-line" style={{ width: '60%', height: 18 }} /><div className="skeleton-line" style={{ width: '40%' }} /></div>)}</div>
 
   return (
     <div className="view-roadmap">

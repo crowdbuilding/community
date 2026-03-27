@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -22,7 +23,7 @@ export function useEvents() {
       .order('date', { ascending: true })
 
     if (error) {
-      console.error('Error fetching events:', error)
+      logger.error('useEvents.fetch', error)
     } else {
       const transformed = (data || []).map(e => ({
         ...e,
@@ -59,7 +60,7 @@ export function useEvents() {
       .insert({ project_id: projectId, title, description, date, location, online_url, max_attendees, duration_hours, event_type, image_url })
       .select('*')
       .single()
-    if (error) throw error
+    if (error) { logger.error('useEvents.createEvent', error); throw new Error(friendlyError(error)) }
     fetchEvents()
     return data
   }
@@ -69,21 +70,21 @@ export function useEvents() {
       .from('meetings')
       .update(updates)
       .eq('id', eventId)
-    if (error) throw error
+    if (error) { logger.error('useEvents.updateEvent', error); throw new Error(friendlyError(error)) }
     fetchEvents()
   }
 
   async function rsvp(meetingId, status) {
     if (status === null) {
       const { error } = await supabase.from('event_rsvps').delete().eq('meeting_id', meetingId).eq('profile_id', user.id)
-      if (error) console.error('RSVP delete error:', error)
+      if (error) { logger.error('useEvents.rsvp', error); throw new Error(friendlyError(error)) }
     } else {
       const { error } = await supabase.from('event_rsvps').upsert({
         meeting_id: meetingId,
         profile_id: user.id,
         status,
       }, { onConflict: 'profile_id,meeting_id' })
-      if (error) console.error('RSVP upsert error:', error)
+      if (error) { logger.error('useEvents.rsvp', error); throw new Error(friendlyError(error)) }
     }
     // Optimistic update
     setEvents(prev => prev.map(e => {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -26,7 +27,7 @@ export function useUpdates() {
 
     if (error) {
       // Fallback: tables may not exist yet
-      console.warn('Fetching updates with reactions failed, falling back:', error.message)
+      logger.warn('useUpdates.fetch', 'Fetching with reactions failed, falling back: ' + error.message)
       const fallback = await supabase
         .from('updates')
         .select('*, author:profiles(id, full_name, avatar_url)')
@@ -37,7 +38,7 @@ export function useUpdates() {
     }
 
     if (error) {
-      console.error('Error fetching updates:', error)
+      logger.error('useUpdates.fetch', error)
     } else {
       const transformed = (data || []).map(u => {
         const reactionCounts = {}
@@ -101,7 +102,7 @@ export function useUpdates() {
       .select('*, author:profiles(id, full_name, avatar_url)')
       .single()
 
-    if (error) throw error
+    if (error) { logger.error('useUpdates.createUpdate', error); throw new Error(friendlyError(error)) }
     // Optimistic: add to local state immediately
     if (data) setUpdates(prev => [data, ...prev])
     return data
@@ -115,7 +116,7 @@ export function useUpdates() {
       .select('*, author:profiles(id, full_name, avatar_url)')
       .single()
 
-    if (error) throw error
+    if (error) { logger.error('useUpdates.editUpdate', error); throw new Error(friendlyError(error)) }
     if (data) setUpdates(prev => prev.map(u => u.id === id ? data : u))
     return data
   }
@@ -154,7 +155,7 @@ export function useUpdates() {
       .delete()
       .eq('id', id)
 
-    if (error) throw error
+    if (error) { logger.error('useUpdates.deleteUpdate', error); throw new Error(friendlyError(error)) }
   }
 
   return { updates, loading, createUpdate, editUpdate, deleteUpdate, toggleReaction, refetch: fetchUpdates }
@@ -172,7 +173,7 @@ export function useUpdateComments(updateId) {
       .select('*, author:profiles(id, full_name, avatar_url)')
       .eq('update_id', updateId)
       .order('created_at', { ascending: true })
-    if (error) console.error('Error fetching update comments:', error)
+    if (error) logger.error('useUpdateComments.fetch', error)
     else setComments(data || [])
     setLoading(false)
   }, [updateId])
@@ -191,7 +192,7 @@ export function useUpdateComments(updateId) {
       })
       .select('*, author:profiles(id, full_name, avatar_url)')
       .single()
-    if (error) throw error
+    if (error) { logger.error('useUpdateComments.addComment', error); throw new Error(friendlyError(error)) }
     setComments(prev => [...prev, data])
     return data
   }

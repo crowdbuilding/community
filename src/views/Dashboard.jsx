@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useRoadmap } from '../hooks/useRoadmap'
 import { ROLE_LABELS, timeAgo, POST_TAG_COLORS } from '../lib/constants'
 import { canDo } from '../lib/permissions'
+import Skeleton from '../components/Skeleton'
 
 export default function Dashboard() {
   const { project, role, loading } = useProject()
@@ -19,6 +20,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!project?.id) return
+    let stale = false
 
     async function loadFeed() {
       const queries = [
@@ -32,6 +34,7 @@ export default function Dashboard() {
       ]
 
       const [eventRes, updateRes, postsRes, membersRes, memberCount, updateCount, intakeRes] = await Promise.all(queries)
+      if (stale) return
 
       setFeed({
         nextEvent: eventRes.data?.[0] || null,
@@ -44,9 +47,10 @@ export default function Dashboard() {
     }
 
     loadFeed()
+    return () => { stale = true }
   }, [project?.id])
 
-  if (loading) return <div className="loading-page"><p>Laden...</p></div>
+  if (loading) return <Skeleton.Page rows={5} />
   if (!project) return <div className="empty-state"><p>Project niet gevonden</p></div>
 
   const MONTHS_SHORT = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']

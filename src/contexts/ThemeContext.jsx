@@ -1,14 +1,15 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { safeStorage } from '../lib/safeStorage'
 
 const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children, projectBranding }) {
   const [mode, setMode] = useState(() => {
-    return localStorage.getItem('theme-mode') || projectBranding?.default_theme || 'light'
+    return safeStorage.getItem('theme-mode') || projectBranding?.default_theme || 'light'
   })
 
   useEffect(() => {
-    localStorage.setItem('theme-mode', mode)
+    safeStorage.setItem('theme-mode', mode)
     // Clean Design System uses data-theme for dark mode
     document.documentElement.setAttribute('data-theme', mode)
   }, [mode])

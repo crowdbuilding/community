@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 
 export function useRoadmap(projectId) {
   const [phases, setPhases] = useState([])
@@ -14,7 +15,7 @@ export function useRoadmap(projectId) {
       .order('sort_order')
 
     if (error) {
-      console.error('Error fetching roadmap:', error)
+      logger.error('useRoadmap.fetch', error)
     } else {
       // Sort items within each phase
       const sorted = (data || []).map(p => ({
@@ -31,12 +32,12 @@ export function useRoadmap(projectId) {
 
     // Realtime subscriptions
     const phasesSub = supabase
-      .channel('roadmap_phases_changes')
+      .channel(`roadmap_phases_${projectId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'roadmap_phases', filter: `project_id=eq.${projectId}` }, fetchRoadmap)
       .subscribe()
 
     const itemsSub = supabase
-      .channel('roadmap_items_changes')
+      .channel(`roadmap_items_${projectId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'roadmap_items' }, fetchRoadmap)
       .subscribe()
 
@@ -65,18 +66,18 @@ export function useRoadmap(projectId) {
       status: 'pending',
       sort_order: maxOrder + 1,
     })
-    if (error) console.error('Error adding phase:', error)
+    if (error) { logger.error('useRoadmap.addPhase', error); throw new Error(friendlyError(error)) }
   }
 
   async function updatePhase(phaseId, updates) {
     const { error } = await supabase.from('roadmap_phases').update(updates).eq('id', phaseId)
-    if (error) console.error('Error updating phase:', error)
+    if (error) { logger.error('useRoadmap.updatePhase', error); throw new Error(friendlyError(error)) }
   }
 
   async function removePhase(phaseId) {
     setPhases(prev => prev.filter(p => p.id !== phaseId))
     const { error } = await supabase.from('roadmap_phases').delete().eq('id', phaseId)
-    if (error) { console.error('Error removing phase:', error); fetchRoadmap() }
+    if (error) { logger.error('useRoadmap.removePhase', error); fetchRoadmap(); throw new Error(friendlyError(error)) }
   }
 
   // CRUD: Items
@@ -91,17 +92,17 @@ export function useRoadmap(projectId) {
       type: item.type || 'milestone',
       sort_order: maxOrder + 1,
     })
-    if (error) console.error('Error adding item:', error)
+    if (error) { logger.error('useRoadmap.addItem', error); throw new Error(friendlyError(error)) }
   }
 
   async function updateItem(itemId, updates) {
     const { error } = await supabase.from('roadmap_items').update(updates).eq('id', itemId)
-    if (error) console.error('Error updating item:', error)
+    if (error) { logger.error('useRoadmap.updateItem', error); throw new Error(friendlyError(error)) }
   }
 
   async function removeItem(itemId) {
     const { error } = await supabase.from('roadmap_items').delete().eq('id', itemId)
-    if (error) console.error('Error removing item:', error)
+    if (error) { logger.error('useRoadmap.removeItem', error); throw new Error(friendlyError(error)) }
   }
 
   async function toggleItemDone(itemId, isDone) {

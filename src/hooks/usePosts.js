@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -34,7 +35,7 @@ export function usePosts() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching posts:', error)
+      logger.error('usePosts.fetch', error)
     } else {
       const transformed = (data || []).map(p => {
         // Aggregate reactions by emoji
@@ -103,7 +104,7 @@ export function usePosts() {
       })
       .select('*, author:profiles!author_id(id, full_name, avatar_url)')
       .single()
-    if (error) throw error
+    if (error) { logger.error('usePosts.createPost', error); throw new Error(friendlyError(error)) }
 
     // Create poll options if poll
     if (post_type === 'poll' && poll_options?.length > 0) {
@@ -111,8 +112,8 @@ export function usePosts() {
         poll_options.map((text, i) => ({ post_id: data.id, text, sort_order: i }))
       )
       if (pollError) {
-        console.error('Poll options error:', pollError)
-        throw new Error('Poll opties konden niet worden aangemaakt: ' + pollError.message)
+        logger.error('usePosts.createPost.pollOptions', pollError)
+        throw new Error(friendlyError(pollError))
       }
     }
 
@@ -208,15 +209,15 @@ export function usePosts() {
   async function deletePost(postId) {
     const { error } = await supabase.from('posts').delete().eq('id', postId)
     if (error) {
-      console.error('Delete post error:', error)
-      throw error
+      logger.error('usePosts.deletePost', error)
+      throw new Error(friendlyError(error))
     }
     setPosts(prev => prev.filter(p => p.id !== postId))
   }
 
   async function updatePost(postId, updates) {
     const { error } = await supabase.from('posts').update(updates).eq('id', postId)
-    if (error) throw error
+    if (error) { logger.error('usePosts.updatePost', error); throw new Error(friendlyError(error)) }
     fetchPosts()
   }
 
@@ -235,7 +236,7 @@ export function useComments(postId) {
       .select('*, author:profiles(id, full_name, avatar_url)')
       .eq('post_id', postId)
       .order('created_at', { ascending: true })
-    if (error) console.error('Error fetching comments:', error)
+    if (error) logger.error('useComments.fetch', error)
     else setComments(data || [])
     setLoading(false)
   }, [postId])
@@ -254,7 +255,7 @@ export function useComments(postId) {
       })
       .select('*, author:profiles(id, full_name, avatar_url)')
       .single()
-    if (error) throw error
+    if (error) { logger.error('useComments.addComment', error); throw new Error(friendlyError(error)) }
     setComments(prev => [...prev, data])
     return data
   }

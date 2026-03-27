@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -26,7 +27,7 @@ export function useProfessionalUpdates() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching professional updates:', error)
+      logger.error('useProfessionalUpdates.fetch', error)
     } else {
       // Sort files by sort_order within each update
       const sorted = (data || []).map(u => ({
@@ -81,7 +82,7 @@ export function useProfessionalUpdates() {
       `)
       .single()
 
-    if (error) throw error
+    if (error) { logger.error('useProfessionalUpdates.createUpdate', error); throw new Error(friendlyError(error)) }
 
     // 2. Insert file records if any
     if (files.length > 0) {
@@ -99,7 +100,7 @@ export function useProfessionalUpdates() {
         .insert(fileRecords)
         .select()
 
-      if (filesError) console.error('Error inserting files:', filesError)
+      if (filesError) logger.error('useProfessionalUpdates.createUpdate.files', filesError)
       update.files = insertedFiles || []
     } else {
       update.files = []
@@ -121,7 +122,7 @@ export function useProfessionalUpdates() {
       `)
       .single()
 
-    if (error) throw error
+    if (error) { logger.error('useProfessionalUpdates.editUpdate', error); throw new Error(friendlyError(error)) }
     return data
   }
 
@@ -131,7 +132,7 @@ export function useProfessionalUpdates() {
       .delete()
       .eq('id', id)
 
-    if (error) throw error
+    if (error) { logger.error('useProfessionalUpdates.deleteUpdate', error); throw new Error(friendlyError(error)) }
     setUpdates(prev => prev.filter(u => u.id !== id))
   }
 

@@ -11,8 +11,8 @@ export default function AuthCallback() {
     handled.current = true
 
     function redirectAfterLogin() {
-      const saved = localStorage.getItem('redirectAfterLogin')
-      localStorage.removeItem('redirectAfterLogin')
+      let saved
+      try { saved = localStorage.getItem('redirectAfterLogin'); localStorage.removeItem('redirectAfterLogin') } catch {}
       navigate(saved || '/', { replace: true })
     }
 

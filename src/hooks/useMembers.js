@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { logger, friendlyError } from '../lib/logger'
 import { useProject } from '../contexts/ProjectContext'
 
 async function sendMemberEmail(type, { memberName, memberEmail, projectName, reason }) {
@@ -7,10 +8,10 @@ async function sendMemberEmail(type, { memberName, memberEmail, projectName, rea
     const { error } = await supabase.functions.invoke('send-member-email', {
       body: { type, memberName, memberEmail, projectName, reason },
     })
-    if (error) console.error('Email send error:', error)
+    if (error) logger.error('useMembers.sendEmail', error)
   } catch (err) {
     // Email is best-effort — don't block the action
-    console.error('Email function error:', err)
+    logger.error('useMembers.sendEmail', err)
   }
 }
 
@@ -32,7 +33,7 @@ export function useMembers() {
       .order('joined_at', { ascending: true })
 
     if (error) {
-      console.error('Error fetching members:', error)
+      logger.error('useMembers.fetch', error)
     } else {
       setMembers(data || [])
     }
@@ -47,7 +48,7 @@ export function useMembers() {
       .update({ role: newRole })
       .eq('id', membershipId)
 
-    if (error) throw error
+    if (error) { logger.error('useMembers.updateRole', error); throw new Error(friendlyError(error)) }
     setMembers(prev => prev.map(m => m.id === membershipId ? { ...m, role: newRole } : m))
   }
 
@@ -57,7 +58,7 @@ export function useMembers() {
       .delete()
       .eq('id', membershipId)
 
-    if (error) throw error
+    if (error) { logger.error('useMembers.removeMember', error); throw new Error(friendlyError(error)) }
     setMembers(prev => prev.filter(m => m.id !== membershipId))
   }
 
