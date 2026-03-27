@@ -92,7 +92,7 @@ export default function EventModal({ event, onSave, onClose }) {
       <div className="modal-card modal-card--event" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{isEdit ? 'Event bewerken' : 'Nieuw event'}</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -177,7 +177,7 @@ export default function EventModal({ event, onSave, onClose }) {
             {imagePreview ? (
               <div className="post-image-preview">
                 <img src={imagePreview} alt="Preview" />
-                <button type="button" className="post-image-remove" onClick={removeImage}>
+                <button type="button" className="post-image-remove" onClick={removeImage} aria-label="Verwijderen">
                   <i className="fa-solid fa-xmark" />
                 </button>
               </div>

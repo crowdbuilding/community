@@ -69,15 +69,15 @@ export default function EventDetail({ event, onClose, onRsvp, onEdit }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="event-detail-card event-detail-card--tabbed" onClick={e => e.stopPropagation()}>
         <div className="modal-detail-actions">
-          <button className={copied ? 'btn-icon--success' : ''} onClick={copyLink} title="Link kopiëren">
+          <button className={copied ? 'btn-icon--success' : ''} onClick={copyLink} title="Link kopiëren" aria-label="Link kopiëren">
             <i className={`fa-solid ${copied ? 'fa-check' : 'fa-link'}`} />
           </button>
           {onEdit && (
-            <button onClick={() => onEdit(event)} title="Bewerken">
+            <button onClick={() => onEdit(event)} title="Bewerken" aria-label="Bewerken">
               <i className="fa-solid fa-pen" />
             </button>
           )}
-          <button onClick={onClose}>
+          <button onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -165,7 +165,7 @@ function InfoTab({ event, dateStr, isPast, goingAttendees, maybeAttendees, onRsv
   return (
     <div className="event-tab-content">
       {event.image_url && (
-        <div className="event-detail-image"><img src={event.image_url} alt="" /></div>
+        <div className="event-detail-image"><img src={event.image_url} alt={event.title || ''} /></div>
       )}
 
       {event.online_url && (
@@ -229,7 +229,7 @@ function AttendeeList({ title, attendees }) {
         {attendees.map(a => (
           <div key={a.profile.id} className="attendee-chip" title={a.profile.full_name}>
             {a.profile.avatar_url
-              ? <img src={a.profile.avatar_url} alt="" className="attendee-avatar" />
+              ? <img src={a.profile.avatar_url} alt={a.profile.full_name || ''} className="attendee-avatar" />
               : <div className="attendee-avatar attendee-avatar--placeholder">{(a.profile.full_name || 'U')[0]}</div>}
             <span>{a.profile.full_name?.split(' ')[0]}</span>
           </div>
@@ -290,7 +290,7 @@ function FilesTab({ files, canEdit, onUpload, onRemove }) {
                     <i className="fa-solid fa-download" />
                   </a>
                   {canEdit && (
-                    <button className="file-row__remove" onClick={async () => { if (await confirm('Dit bestand verwijderen?', { danger: true })) onRemove(f.id, f.file_path) }} title="Verwijder">
+                    <button className="file-row__remove" onClick={async () => { if (await confirm('Dit bestand verwijderen?', { danger: true })) onRemove(f.id, f.file_path) }} title="Verwijder" aria-label="Verwijderen">
                       <i className="fa-solid fa-xmark" />
                     </button>
                   )}
@@ -375,8 +375,9 @@ function ActionsTab({ items, canEdit, onAdd, onToggle, onRemove }) {
             value={text}
             onChange={e => setText(e.target.value)}
             placeholder="Nieuw actiepunt toevoegen..."
+            aria-label="Nieuw actiepunt"
           />
-          <button type="submit" className="btn-small" disabled={!text.trim()}>
+          <button type="submit" className="btn-small" disabled={!text.trim()} aria-label="Toevoegen">
             <i className="fa-solid fa-plus" />
           </button>
         </form>
@@ -406,7 +407,7 @@ function ActionItem({ item, canEdit, onToggle, onRemove }) {
         )}
       </div>
       {canEdit && (
-        <button className="action-item__remove" onClick={async () => { if (await confirm('Dit actiepunt verwijderen?', { danger: true })) onRemove(item.id) }}>
+        <button className="action-item__remove" onClick={async () => { if (await confirm('Dit actiepunt verwijderen?', { danger: true })) onRemove(item.id) }} aria-label="Verwijderen">
           <i className="fa-solid fa-xmark" />
         </button>
       )}

@@ -10,7 +10,7 @@ export default function AdviseurCard({ profile, onEdit }) {
       {/* Photo + badge row */}
       <div className="adviseur-card__top">
         {profile.avatar_url ? (
-          <img src={profile.avatar_url} alt="" className="adviseur-card__photo" />
+          <img src={profile.avatar_url} alt={profile.full_name || ''} className="adviseur-card__photo" />
         ) : (
           <div className="adviseur-card__photo adviseur-card__photo--placeholder" style={{ background: color }}>
             {initials}
@@ -45,7 +45,7 @@ export default function AdviseurCard({ profile, onEdit }) {
       )}
 
       {onEdit && (
-        <button className="adviseur-card__edit" onClick={() => onEdit(profile)}>
+        <button className="adviseur-card__edit" onClick={() => onEdit(profile)} aria-label="Bewerken">
           <i className="fa-solid fa-pen" />
         </button>
       )}

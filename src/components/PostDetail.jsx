@@ -44,21 +44,21 @@ export default function PostDetail({ post, onClose, onLike, onReaction, onFollow
           {canManage && (
             <>
               {isAuthor && !isPoll && (
-                <button onClick={() => { onEdit?.(post); onClose() }} title="Bewerken">
+                <button onClick={() => { onEdit?.(post); onClose() }} title="Bewerken" aria-label="Bewerken">
                   <i className="fa-solid fa-pen" />
                 </button>
               )}
               {canModerate && (
-                <button onClick={() => onPin?.(post.id)} title={post.is_pinned ? 'Losmaken' : 'Vastpinnen'}>
+                <button onClick={() => onPin?.(post.id)} title={post.is_pinned ? 'Losmaken' : 'Vastpinnen'} aria-label={post.is_pinned ? 'Losmaken' : 'Vastpinnen'}>
                   <i className={`fa-solid fa-thumbtack${post.is_pinned ? ' feed-card__pin--active' : ''}`} />
                 </button>
               )}
-              <button className="modal-detail-actions__danger" onClick={() => { onDelete?.(post.id); onClose() }} title="Verwijderen">
+              <button className="modal-detail-actions__danger" onClick={() => { onDelete?.(post.id); onClose() }} title="Verwijderen" aria-label="Verwijderen">
                 <i className="fa-solid fa-trash" />
               </button>
             </>
           )}
-          <button onClick={onClose}>
+          <button onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -67,7 +67,7 @@ export default function PostDetail({ post, onClose, onLike, onReaction, onFollow
         <div className="post-detail-content">
           <div className="feed-card__author">
             {post.author?.avatar_url ? (
-              <img src={post.author.avatar_url} alt="" className="feed-card__avatar" />
+              <img src={post.author.avatar_url} alt={post.author.full_name || ''} className="feed-card__avatar" />
             ) : (
               <div className="feed-card__avatar feed-card__avatar--placeholder">
                 {(post.author?.full_name || 'U')[0]}
@@ -218,7 +218,7 @@ export default function PostDetail({ post, onClose, onLike, onReaction, onFollow
             {replyTo && (
               <div className="reply-form__replying-to">
                 <i className="fa-solid fa-reply" /> Reageert op {replyTo.name}
-                <button type="button" onClick={() => setReplyTo(null)} className="reply-form__cancel-reply">
+                <button type="button" onClick={() => setReplyTo(null)} className="reply-form__cancel-reply" aria-label="Sluiten">
                   <i className="fa-solid fa-xmark" />
                 </button>
               </div>
@@ -237,8 +237,9 @@ export default function PostDetail({ post, onClose, onLike, onReaction, onFollow
                 onChange={e => setReplyText(e.target.value)}
                 placeholder={replyTo ? `Reageer op ${replyTo.name}...` : 'Schrijf een reactie...'}
                 disabled={sending}
+                aria-label="Reactie"
               />
-              <button type="submit" className="reply-submit" disabled={sending || !replyText.trim()}>
+              <button type="submit" className="reply-submit" disabled={sending || !replyText.trim()} aria-label="Versturen">
                 <i className="fa-solid fa-paper-plane" />
               </button>
             </div>

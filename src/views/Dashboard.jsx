@@ -60,7 +60,7 @@ export default function Dashboard() {
       {/* Header with project info */}
       <div className="dash-header">
         <div className="dash-header__info">
-          {project.logo_url && <img src={project.logo_url} alt="" className="dash-header__logo" />}
+          {project.logo_url && <img src={project.logo_url} alt={project.name + ' logo'} className="dash-header__logo" />}
           <div>
             <h1>{project.name}</h1>
             {project.tagline && <p className="dash-header__tagline">{project.tagline}</p>}
@@ -245,11 +245,11 @@ export default function Dashboard() {
           <div className="modal-card" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Over {project.name}</h2>
-              <button className="modal-close" onClick={() => setInfoOpen(false)}><i className="fa-solid fa-xmark" /></button>
+              <button className="modal-close" onClick={() => setInfoOpen(false)} aria-label="Sluiten"><i className="fa-solid fa-xmark" /></button>
             </div>
             <div className="dash-info-modal">
               {project.cover_image_url && (
-                <img src={project.cover_image_url} alt="" className="dash-info-modal__cover" />
+                <img src={project.cover_image_url} alt={project.name + ' cover'} className="dash-info-modal__cover" />
               )}
               {project.location && (
                 <p className="dash-info-modal__location">

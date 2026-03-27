@@ -65,9 +65,10 @@ export default function Members() {
           onChange={e => setSearch(e.target.value)}
           placeholder="Zoek op naam of bedrijf..."
           className="members-search__input"
+          aria-label="Zoeken"
         />
         {search && (
-          <button className="members-search__clear" onClick={() => setSearch('')}>
+          <button className="members-search__clear" onClick={() => setSearch('')} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         )}
@@ -224,7 +225,7 @@ function InviteModal({ projectName, projectId, onClose }) {
       <div className="modal-card modal-card--invite" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Lid uitnodigen</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -275,14 +276,14 @@ function MemberCard({ membership, isMe, onClick }) {
     <div className={`member-card ${onClick ? '' : 'member-card--no-click'}`} onClick={onClick}>
       <div className="member-card__top">
         {p?.avatar_url ? (
-          <img src={p.avatar_url} alt="" className="member-card__avatar" />
+          <img src={p.avatar_url} alt={p.full_name || ''} className="member-card__avatar" />
         ) : (
           <div className="member-card__avatar member-card__avatar--placeholder">
             {(p?.full_name || 'U')[0]}
           </div>
         )}
         {proLabel && p?.company_logo_url && (
-          <img src={p.company_logo_url} alt="" className="member-card__company-logo" />
+          <img src={p.company_logo_url} alt={p.company ? p.company + ' logo' : ''} className="member-card__company-logo" />
         )}
       </div>
 
@@ -317,7 +318,7 @@ function PendingRow({ membership, onApprove, onReject, onSelect }) {
     <div className="member-row" onClick={onSelect} role="button" tabIndex={0} style={{ cursor: 'pointer' }}>
       <div className="member-row__left">
         {p?.avatar_url ? (
-          <img src={p.avatar_url} alt="" className="member-row__avatar" />
+          <img src={p.avatar_url} alt={p.full_name || ''} className="member-row__avatar" />
         ) : (
           <div className="member-row__avatar member-row__avatar--placeholder">
             {(p?.full_name || 'U')[0]}
@@ -329,7 +330,7 @@ function PendingRow({ membership, onApprove, onReject, onSelect }) {
         </div>
       </div>
       <div className="member-row__right">
-        <button className="btn-sm btn-sm--danger" onClick={e => { e.stopPropagation(); onReject() }} title="Afwijzen">
+        <button className="btn-sm btn-sm--danger" onClick={e => { e.stopPropagation(); onReject() }} title="Afwijzen" aria-label="Afwijzen">
           <i className="fa-solid fa-xmark" />
         </button>
         <button className="btn-sm btn-sm--green" onClick={e => { e.stopPropagation(); onApprove() }}>

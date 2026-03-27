@@ -70,7 +70,7 @@ export default function PostModal({ onSave, onClose, editPost }) {
       <div className="modal-card modal-card--composer" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{isEdit ? 'Bericht bewerken' : 'Nieuw bericht'}</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -135,7 +135,7 @@ export default function PostModal({ onSave, onClose, editPost }) {
                     className="composer-poll__input"
                   />
                   {pollOptions.length > 2 && (
-                    <button type="button" className="composer-poll__remove" onClick={() => removePollOption(i)}>
+                    <button type="button" className="composer-poll__remove" onClick={() => removePollOption(i)} aria-label="Verwijderen">
                       <i className="fa-solid fa-xmark" />
                     </button>
                   )}
@@ -153,7 +153,7 @@ export default function PostModal({ onSave, onClose, editPost }) {
           {imagePreview && (
             <div className="post-image-preview">
               <img src={imagePreview} alt="Preview" />
-              <button type="button" className="post-image-remove" onClick={removeImage}>
+              <button type="button" className="post-image-remove" onClick={removeImage} aria-label="Verwijderen">
                 <i className="fa-solid fa-xmark" />
               </button>
             </div>

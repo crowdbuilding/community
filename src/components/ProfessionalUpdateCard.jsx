@@ -15,7 +15,7 @@ export default function ProfessionalUpdateCard({ update, onEdit }) {
       <div className="pro-update-card__body">
         <div className="pro-update-card__author">
           {update.author?.avatar_url ? (
-            <img src={update.author.avatar_url} alt="" className="pro-update-card__avatar" />
+            <img src={update.author.avatar_url} alt={update.author.full_name || ''} className="pro-update-card__avatar" />
           ) : (
             <div className="pro-update-card__avatar" style={{ background: color }}>
               {initials}
@@ -41,7 +41,7 @@ export default function ProfessionalUpdateCard({ update, onEdit }) {
         )}
 
         {isAuthor && onEdit && (
-          <button className="pro-update-card__edit" onClick={() => onEdit(update)}>
+          <button className="pro-update-card__edit" onClick={() => onEdit(update)} aria-label="Bewerken">
             <i className="fa-solid fa-pen" />
           </button>
         )}

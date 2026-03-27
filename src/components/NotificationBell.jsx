@@ -53,6 +53,7 @@ export default function NotificationBell() {
         className={`notification-bell__trigger ${unreadCount > 0 ? 'notification-bell__trigger--has-unread' : ''}`}
         onClick={() => setOpen(!open)}
         title="Notificaties"
+        aria-label="Notificaties"
       >
         <i className="fa-solid fa-bell" />
         {unreadCount > 0 && (
@@ -104,7 +105,7 @@ function NotificationItem({ notification, onClick }) {
     >
       <div className="notification-item__avatar">
         {notification.actor?.avatar_url ? (
-          <img src={notification.actor.avatar_url} alt="" />
+          <img src={notification.actor.avatar_url} alt={notification.actor.full_name || ''} />
         ) : (
           <div className="notification-item__avatar-placeholder" style={{ background: config.color }}>
             {notification.actor ? initials : <i className={config.icon} />}

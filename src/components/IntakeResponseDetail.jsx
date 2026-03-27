@@ -32,7 +32,7 @@ export default function IntakeResponseDetail({ response: initialResponse, questi
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card modal-card--profile" onClick={e => e.stopPropagation()}>
         <div className="modal-detail-actions">
-          <button onClick={onClose}>
+          <button onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>

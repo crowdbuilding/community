@@ -1,18 +1,41 @@
 /**
  * Production-safe logger.
  * In development: logs everything to console.
- * In production: suppresses verbose output, sanitizes errors.
+ * In production: captures errors for monitoring, suppresses verbose output.
+ *
+ * To enable Sentry:
+ *   1. npm install @sentry/react
+ *   2. Set VITE_SENTRY_DSN in .env
+ *   3. The logger auto-detects and sends errors
  *
  * Usage: import { logger } from '../lib/logger'
  *        logger.error('Upload failed', err)
  */
 
 const isDev = import.meta.env.DEV
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN
+
+// Lazy-load Sentry only when DSN is configured
+let Sentry = null
+if (sentryDsn && !isDev) {
+  import('@sentry/react').then(mod => {
+    Sentry = mod
+    Sentry.init({
+      dsn: sentryDsn,
+      environment: isDev ? 'development' : 'production',
+      tracesSampleRate: 0.1,
+      // Don't send PII
+      beforeSend(event) {
+        if (event.user) delete event.user.email
+        return event
+      },
+    })
+  }).catch(() => { /* Sentry not installed, that's fine */ })
+}
 
 function sanitizeError(err) {
   if (!err) return 'Unknown error'
   if (typeof err === 'string') return err
-  // Don't leak SQL errors, full stack traces, or internal details
   return err.message || err.code || 'Onbekende fout'
 }
 
@@ -21,12 +44,18 @@ export const logger = {
     if (isDev) {
       console.error(`[${context}]`, err)
     }
-    // TODO: In production, send to error monitoring (Sentry, LogRocket, etc.)
-    // if (!isDev) sendToErrorService(context, sanitizeError(err))
+    if (Sentry) {
+      Sentry.withScope(scope => {
+        scope.setTag('context', context)
+        scope.setExtra('sanitized', sanitizeError(err))
+        Sentry.captureException(err instanceof Error ? err : new Error(sanitizeError(err)))
+      })
+    }
   },
 
   warn(context, msg) {
     if (isDev) console.warn(`[${context}]`, msg)
+    if (Sentry) Sentry.addBreadcrumb({ category: context, message: String(msg), level: 'warning' })
   },
 
   info(context, msg) {

@@ -94,7 +94,7 @@ export default function MemberProfile({ profileId, membership, onClose, canManag
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card modal-card--profile" onClick={e => e.stopPropagation()}>
         {/* Close button — always top-right */}
-        <button className="modal-close modal-close--profile" onClick={onClose}>
+        <button className="modal-close modal-close--profile" onClick={onClose} aria-label="Sluiten">
           <i className="fa-solid fa-xmark" />
         </button>
 
@@ -105,14 +105,14 @@ export default function MemberProfile({ profileId, membership, onClose, canManag
             {/* Avatar with optional company logo overlay */}
             <div className="member-profile__avatar-section">
               {profile.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="member-profile__avatar" />
+                <img src={profile.avatar_url} alt={profile.full_name || ''} className="member-profile__avatar" />
               ) : (
                 <div className="member-profile__avatar member-profile__avatar--placeholder">
                   {(profile.full_name || '?')[0]}
                 </div>
               )}
               {isProfessional && (
-                <img src={profile.company_logo_url} alt="" className="member-profile__logo-overlay" />
+                <img src={profile.company_logo_url} alt={profile.company ? profile.company + ' logo' : ''} className="member-profile__logo-overlay" />
               )}
             </div>
 
@@ -215,7 +215,7 @@ export default function MemberProfile({ profileId, membership, onClose, canManag
                     <i className="fa-solid fa-building" />
                     <span>{profile.company}</span>
                     {profile.company_logo_url && !isProfessional && (
-                      <img src={profile.company_logo_url} alt="" className="member-profile__company-logo" />
+                      <img src={profile.company_logo_url} alt={profile.company ? profile.company + ' logo' : ''} className="member-profile__company-logo" />
                     )}
                   </div>
                 )}

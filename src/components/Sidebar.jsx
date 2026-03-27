@@ -105,7 +105,7 @@ export default function Sidebar() {
   }
 
   return (
-    <nav className="cl-sidebar">
+    <nav className="cl-sidebar" role="navigation" aria-label="Hoofdnavigatie">
       {isOrgAdmin && primaryOrgId && (
         <div className="sidebar-back" onClick={() => navigate(`/org/${primaryOrgId}`)} role="button" tabIndex={0}>
           <i className="fa-solid fa-arrow-left" />
@@ -180,7 +180,7 @@ export default function Sidebar() {
           tabIndex={0}
         >
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="sidebar-user-avatar" />
+            <img src={profile.avatar_url} alt={profile.full_name || ''} className="sidebar-user-avatar" />
           ) : (
             <div className="sidebar-user-avatar sidebar-user-avatar--placeholder">{initials}</div>
           )}

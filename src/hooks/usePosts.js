@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
@@ -77,18 +77,23 @@ export function usePosts() {
 
   useEffect(() => { fetchPosts(true) }, [fetchPosts])
 
-  // Realtime
+  // Realtime — debounce rapid changes (comments, likes, reactions) to avoid N+1 refetches
+  const debounceRef = useRef(null)
   useEffect(() => {
     if (!projectId) return
+    const debouncedFetch = () => {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(() => fetchPosts(), 500)
+    }
     const channel = supabase
       .channel(`posts:${projectId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts', filter: `project_id=eq.${projectId}` }, () => fetchPosts())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => fetchPosts())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'post_likes' }, () => fetchPosts())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'post_reactions' }, () => fetchPosts())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, () => fetchPosts())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'post_likes' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'post_reactions' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, debouncedFetch)
       .subscribe()
-    return () => supabase.removeChannel(channel)
+    return () => { supabase.removeChannel(channel); clearTimeout(debounceRef.current) }
   }, [projectId, fetchPosts])
 
   async function createPost({ text, tag, image_url, post_type, poll_options }) {
@@ -128,13 +133,23 @@ export function usePosts() {
   async function toggleLike(postId) {
     const post = posts.find(p => p.id === postId)
     if (!post) return
+    const wasLiked = post.is_liked
 
-    if (post.is_liked) {
-      await supabase.from('post_likes').delete().eq('post_id', postId).eq('profile_id', user.id)
-      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_liked: false, like_count: p.like_count - 1 } : p))
-    } else {
-      await supabase.from('post_likes').insert({ post_id: postId, profile_id: user.id })
-      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_liked: true, like_count: p.like_count + 1 } : p))
+    // Optimistic update
+    setPosts(prev => prev.map(p => p.id === postId
+      ? { ...p, is_liked: !wasLiked, like_count: p.like_count + (wasLiked ? -1 : 1) }
+      : p))
+
+    // Server — rollback on error
+    const { error } = wasLiked
+      ? await supabase.from('post_likes').delete().eq('post_id', postId).eq('profile_id', user.id)
+      : await supabase.from('post_likes').insert({ post_id: postId, profile_id: user.id })
+
+    if (error) {
+      setPosts(prev => prev.map(p => p.id === postId
+        ? { ...p, is_liked: wasLiked, like_count: p.like_count + (wasLiked ? 1 : -1) }
+        : p))
+      logger.error('usePosts.toggleLike', error)
     }
   }
 
@@ -165,24 +180,46 @@ export function usePosts() {
       }
     }))
 
-    // Server update
-    if (hadReaction) {
-      await supabase.from('post_reactions').delete().eq('post_id', postId).eq('profile_id', user.id).eq('emoji', emoji)
-    } else {
-      await supabase.from('post_reactions').insert({ post_id: postId, profile_id: user.id, emoji })
+    // Server update — rollback on error
+    const { error } = hadReaction
+      ? await supabase.from('post_reactions').delete().eq('post_id', postId).eq('profile_id', user.id).eq('emoji', emoji)
+      : await supabase.from('post_reactions').insert({ post_id: postId, profile_id: user.id, emoji })
+
+    if (error) {
+      // Revert the optimistic update
+      setPosts(prev => prev.map(p => {
+        if (p.id !== postId) return p
+        const revReactions = { ...p.reactions }
+        const revMyReactions = new Set(p.myReactions)
+        if (hadReaction) {
+          revReactions[emoji] = (revReactions[emoji] || 0) + 1
+          revMyReactions.add(emoji)
+        } else {
+          revReactions[emoji] = Math.max(0, (revReactions[emoji] || 1) - 1)
+          if (revReactions[emoji] === 0) delete revReactions[emoji]
+          revMyReactions.delete(emoji)
+        }
+        return { ...p, reactions: revReactions, myReactions: revMyReactions, totalReactions: Object.values(revReactions).reduce((s, c) => s + c, 0) }
+      }))
+      logger.error('usePosts.toggleReaction', error)
     }
   }
 
   async function toggleFollow(postId) {
     const post = posts.find(p => p.id === postId)
     if (!post) return
+    const wasFollowed = post.is_followed
 
-    if (post.is_followed) {
-      await supabase.from('post_follows').delete().eq('post_id', postId).eq('profile_id', user.id)
-      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_followed: false } : p))
-    } else {
-      await supabase.from('post_follows').insert({ post_id: postId, profile_id: user.id })
-      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_followed: true } : p))
+    // Optimistic
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_followed: !wasFollowed } : p))
+
+    const { error } = wasFollowed
+      ? await supabase.from('post_follows').delete().eq('post_id', postId).eq('profile_id', user.id)
+      : await supabase.from('post_follows').insert({ post_id: postId, profile_id: user.id })
+
+    if (error) {
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_followed: wasFollowed } : p))
+      logger.error('usePosts.toggleFollow', error)
     }
   }
 

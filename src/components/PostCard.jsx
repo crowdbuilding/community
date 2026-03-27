@@ -29,7 +29,7 @@ export default function PostCard({ post, onReaction, onFollow, onVotePoll, onDel
       {/* Author row */}
       <div className="feed-card__author">
         {post.author?.avatar_url ? (
-          <img src={post.author.avatar_url} alt="" className="feed-card__avatar" />
+          <img src={post.author.avatar_url} alt={post.author.full_name || ''} className="feed-card__avatar" />
         ) : (
           <div className="feed-card__avatar feed-card__avatar--placeholder">
             {(post.author?.full_name || 'U')[0]}
@@ -48,7 +48,7 @@ export default function PostCard({ post, onReaction, onFollow, onVotePoll, onDel
         {/* Post menu */}
         {canManage && (
           <div className="feed-card__menu-wrap" ref={menuRef} onClick={e => e.stopPropagation()}>
-            <button className="feed-card__menu-btn" onClick={() => setShowMenu(!showMenu)}>
+            <button className="feed-card__menu-btn" onClick={() => setShowMenu(!showMenu)} aria-label="Menu">
               <i className="fa-solid fa-ellipsis" />
             </button>
             {showMenu && (

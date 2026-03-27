@@ -34,7 +34,7 @@ export default function UpdateCard({ update, onEdit, onReaction, onClick }) {
         <div className="update-card__footer">
           <div className="update-card__author">
             {update.author?.avatar_url ? (
-              <img src={update.author.avatar_url} alt="" className="update-card__avatar" />
+              <img src={update.author.avatar_url} alt={update.author.full_name || ''} className="update-card__avatar" />
             ) : (
               <div className="update-card__avatar update-card__avatar--placeholder">
                 {(update.author?.full_name || 'U')[0]}
@@ -95,7 +95,7 @@ export default function UpdateCard({ update, onEdit, onReaction, onClick }) {
         </div>
 
         {canDo(role, 'publish_update') && onEdit && (
-          <button className="update-card__edit" onClick={(e) => { e.stopPropagation(); onEdit(update) }}>
+          <button className="update-card__edit" onClick={(e) => { e.stopPropagation(); onEdit(update) }} aria-label="Bewerken">
             <i className="fa-solid fa-pen" />
           </button>
         )}

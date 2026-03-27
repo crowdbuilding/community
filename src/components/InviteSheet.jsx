@@ -30,7 +30,7 @@ export default function InviteSheet({ invites, onInvite, onRevoke, onClose }) {
       <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Professional uitnodigen</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function InviteSheet({ invites, onInvite, onRevoke, onClose }) {
                     {PROFESSIONAL_LABELS[inv.professional_type]}
                   </span>
                   {inv.status === 'pending' ? (
-                    <button className="btn-icon-sm" onClick={() => onRevoke(inv.id)} title="Intrekken">
+                    <button className="btn-icon-sm" onClick={() => onRevoke(inv.id)} title="Intrekken" aria-label="Intrekken">
                       <i className="fa-solid fa-xmark" />
                     </button>
                   ) : (

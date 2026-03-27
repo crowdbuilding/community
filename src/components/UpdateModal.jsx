@@ -77,7 +77,7 @@ export default function UpdateModal({ update, onSave, onClose }) {
       <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{isEdit ? 'Update bewerken' : 'Nieuwe update'}</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -112,7 +112,7 @@ export default function UpdateModal({ update, onSave, onClose }) {
           {imagePreview ? (
             <div className="post-image-preview">
               <img src={imagePreview} alt="Preview" />
-              <button type="button" className="post-image-remove" onClick={removeImage}>
+              <button type="button" className="post-image-remove" onClick={removeImage} aria-label="Verwijderen">
                 <i className="fa-solid fa-xmark" />
               </button>
               {uploading && <div className="post-image-uploading">Uploaden...</div>}

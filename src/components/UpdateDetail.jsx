@@ -33,11 +33,11 @@ export default function UpdateDetail({ update, onClose, onEdit, onReaction, canE
       <div className="update-detail-card" onClick={e => e.stopPropagation()}>
         <div className="modal-detail-actions">
           {canEdit && (
-            <button onClick={() => { onEdit?.(update); onClose() }} title="Bewerken">
+            <button onClick={() => { onEdit?.(update); onClose() }} title="Bewerken" aria-label="Bewerken">
               <i className="fa-solid fa-pen" />
             </button>
           )}
-          <button onClick={onClose}>
+          <button onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -61,7 +61,7 @@ export default function UpdateDetail({ update, onClose, onEdit, onReaction, canE
 
           <div className="feed-card__author" style={{ marginBottom: 16 }}>
             {update.author?.avatar_url ? (
-              <img src={update.author.avatar_url} alt="" className="feed-card__avatar" />
+              <img src={update.author.avatar_url} alt={update.author.full_name || ''} className="feed-card__avatar" />
             ) : (
               <div className="feed-card__avatar feed-card__avatar--placeholder">
                 {(update.author?.full_name || 'U')[0]}
@@ -77,7 +77,7 @@ export default function UpdateDetail({ update, onClose, onEdit, onReaction, canE
 
           {update.image_url && (
             <div className="post-detail-image">
-              <img src={update.image_url} alt="" />
+              <img src={update.image_url} alt={update.title || ''} />
             </div>
           )}
 
@@ -173,7 +173,7 @@ export default function UpdateDetail({ update, onClose, onEdit, onReaction, canE
             {replyTo && (
               <div className="reply-form__replying-to">
                 <i className="fa-solid fa-reply" /> Reageert op {replyTo.name}
-                <button type="button" onClick={() => setReplyTo(null)} className="reply-form__cancel-reply">
+                <button type="button" onClick={() => setReplyTo(null)} className="reply-form__cancel-reply" aria-label="Sluiten">
                   <i className="fa-solid fa-xmark" />
                 </button>
               </div>
@@ -192,8 +192,9 @@ export default function UpdateDetail({ update, onClose, onEdit, onReaction, canE
                 onChange={e => setReplyText(e.target.value)}
                 placeholder={replyTo ? `Reageer op ${replyTo.name}...` : 'Schrijf een reactie...'}
                 disabled={sending}
+                aria-label="Reactie"
               />
-              <button type="submit" className="reply-submit" disabled={sending || !replyText.trim()}>
+              <button type="submit" className="reply-submit" disabled={sending || !replyText.trim()} aria-label="Versturen">
                 <i className="fa-solid fa-paper-plane" />
               </button>
             </div>

@@ -92,7 +92,7 @@ export default function ProfileEditModal({ profile, onSave, onClose }) {
       <div className="modal-card modal-card--profile-edit" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Profiel bewerken</h2>
-          <button className="modal-close" onClick={onClose}>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -159,7 +159,7 @@ export default function ProfileEditModal({ profile, onSave, onClose }) {
               {photoUrls.map((url, i) => (
                 <div key={i} className="profile-edit__gallery-item">
                   <img src={url} alt="" />
-                  <button type="button" className="profile-edit__gallery-remove" onClick={() => removeGalleryPhoto(i)}>
+                  <button type="button" className="profile-edit__gallery-remove" onClick={() => removeGalleryPhoto(i)} aria-label="Verwijderen">
                     <i className="fa-solid fa-xmark" />
                   </button>
                 </div>

@@ -80,13 +80,13 @@ export default function GlobalSearch() {
 
   return (
     <div className={`global-search ${open ? 'global-search--open' : ''}`}>
-      <button className="global-search-trigger" onClick={open ? handleClose : handleOpen} title="Zoeken (Ctrl+K)">
+      <button className="global-search-trigger" onClick={open ? handleClose : handleOpen} title="Zoeken (Ctrl+K)" aria-label="Zoeken">
         <i className={`fa-solid ${open ? 'fa-xmark' : 'fa-magnifying-glass'}`} />
       </button>
 
       <div className="global-search-bar">
         <input ref={inputRef} type="text" value={query} onChange={handleInput}
-          placeholder="Zoeken..." />
+          placeholder="Zoeken..." aria-label="Zoeken" />
       </div>
 
       {open && (results || loading) && (

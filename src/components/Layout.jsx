@@ -22,6 +22,7 @@ function ThemeToggle() {
       className="theme-toggle-btn"
       onClick={() => setMode(modes[nextIndex].value)}
       title={`Thema: ${mode}`}
+      aria-label={`Thema: ${mode}`}
     >
       <i className={current.icon} />
     </button>
@@ -32,7 +33,7 @@ export default function Layout() {
   return (
     <div className="app-layout">
       <Sidebar />
-      <main className="main-content">
+      <main className="main-content" role="main">
         <div className="main-topbar">
           <GlobalSearch />
           <ThemeToggle />
