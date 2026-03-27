@@ -63,6 +63,11 @@ export default function GlobalSearch() {
     setResults(null)
   }
 
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => clearTimeout(timerRef.current)
+  }, [])
+
   // Close on Escape
   useEffect(() => {
     if (!open) return

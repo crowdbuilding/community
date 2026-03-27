@@ -2,6 +2,25 @@ import { supabase } from './supabase'
 
 const MAX_IMAGE_SIZE = 1024 * 1024 // 1 MB
 const MAX_IMAGE_WIDTH = 1920
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+
+const ALLOWED_FILE_EXTENSIONS = new Set([
+  'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+  'txt', 'csv', 'rtf', 'odt', 'ods',
+  'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg',
+  'mp4', 'mov', 'mp3', 'wav',
+  'zip', 'rar',
+])
+
+function validateFile(file) {
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`Bestand is te groot (max ${MAX_FILE_SIZE / 1024 / 1024} MB)`)
+  }
+  const ext = file.name.split('.').pop()?.toLowerCase()
+  if (!ext || !ALLOWED_FILE_EXTENSIONS.has(ext)) {
+    throw new Error(`Bestandstype .${ext} is niet toegestaan`)
+  }
+}
 
 /**
  * Compress an image file to max 1MB / 1920px wide.
@@ -64,7 +83,8 @@ export async function uploadImage(file, bucket = 'post-images') {
 }
 
 export async function uploadFile(file, bucket = 'project-files') {
-  const ext = file.name.split('.').pop()
+  validateFile(file)
+  const ext = file.name.split('.').pop().toLowerCase()
   const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
   const { error } = await supabase.storage.from(bucket).upload(path, file)

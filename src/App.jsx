@@ -5,6 +5,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { useProject } from './contexts/ProjectContext'
 import Layout from './components/Layout'
 import { ConfirmProvider } from './components/ConfirmDialog'
+import ErrorBoundary from './components/ErrorBoundary'
 import Login from './views/Login'
 import AuthCallback from './views/AuthCallback'
 import Dashboard from './views/Dashboard'
@@ -25,6 +26,21 @@ import NewProject from './views/NewProject'
 import JoinProject from './views/JoinProject'
 import IntakeForm from './views/IntakeForm'
 import Ledenwerving from './views/Ledenwerving'
+
+function NotFound() {
+  return (
+    <div className="error-boundary">
+      <div className="error-boundary__card">
+        <i className="fa-solid fa-compass error-boundary__icon" style={{ color: 'var(--text-tertiary)' }} />
+        <h2>Pagina niet gevonden</h2>
+        <p>Deze pagina bestaat niet of je hebt geen toegang.</p>
+        <button className="btn-primary" onClick={() => window.location.href = '/'}>
+          <i className="fa-solid fa-house" /> Naar home
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function AuthGuard({ children }) {
   const { user, loading } = useAuth()
@@ -82,6 +98,7 @@ function ProjectThemeWrapper({ children }) {
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
@@ -114,10 +131,12 @@ export default function App() {
               <Route path="profile" element={<Profile />} />
               {/* Settings moved to org dashboard */}
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
           </ConfirmProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
+    </ErrorBoundary>
   )
 }

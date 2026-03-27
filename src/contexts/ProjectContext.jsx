@@ -32,26 +32,6 @@ export function ProjectProvider({ children }) {
       setProject(projectRes.data)
       setMilestones(milestonesRes.data || [])
 
-      // Auto-create admin membership for org admins visiting a project without membership
-      const proj = projectRes.data
-      const hasMembership = memberships.some(m => m.project_id === projectId)
-      if (!hasMembership && proj?.organization_id && isOrgAdmin) {
-        const isAdminOfOrg = orgMemberships.some(om =>
-          om.organization_id === proj.organization_id && om.role === 'admin'
-        )
-        if (isAdminOfOrg) {
-          const { error } = await supabase.from('memberships').insert({
-            profile_id: user.id,
-            project_id: projectId,
-            role: 'admin',
-          })
-          if (!error) {
-            // Reload auth to pick up new membership
-            reloadAuth()
-          }
-        }
-      }
-
       setLoading(false)
     }
 
