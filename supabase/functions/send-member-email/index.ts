@@ -1,0 +1,114 @@
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
+
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'noreply@crowdbuilding.com'
+const FROM_NAME = Deno.env.get('FROM_NAME') || 'CrowdBuilding'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  try {
+    const { type, memberName, memberEmail, projectName, reason } = await req.json()
+
+    if (!memberEmail) {
+      return new Response(JSON.stringify({ error: 'No email address' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    let subject: string
+    let html: string
+
+    if (type === 'welcome') {
+      subject = `Welkom bij ${projectName}!`
+      html = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
+          <h1 style="font-size: 24px; color: #1a1a2e; margin-bottom: 16px;">Welkom, ${memberName}! 🎉</h1>
+          <p style="font-size: 16px; color: #4a4a6a; line-height: 1.6;">
+            Goed nieuws — je bent goedgekeurd als aspirant-lid van <strong>${projectName}</strong>.
+          </p>
+          <p style="font-size: 16px; color: #4a4a6a; line-height: 1.6;">
+            Je hebt nu toegang tot de community. Neem de tijd om rond te kijken, je profiel aan te vullen en kennis te maken met de andere leden.
+          </p>
+          <p style="font-size: 14px; color: #9ba1b0; margin-top: 32px;">
+            Dit is een automatisch bericht van ${projectName}.
+          </p>
+        </div>
+      `
+    } else if (type === 'rejection') {
+      subject = `Update over je aanvraag bij ${projectName}`
+      html = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
+          <h1 style="font-size: 24px; color: #1a1a2e; margin-bottom: 16px;">Hoi ${memberName},</h1>
+          <p style="font-size: 16px; color: #4a4a6a; line-height: 1.6;">
+            Bedankt voor je interesse in <strong>${projectName}</strong>. Helaas is je aanvraag op dit moment niet goedgekeurd.
+          </p>
+          <div style="background: #f4f5f7; border-radius: 12px; padding: 16px 20px; margin: 20px 0;">
+            <p style="font-size: 14px; color: #4a4a6a; margin: 0; font-style: italic;">"${reason}"</p>
+          </div>
+          <p style="font-size: 16px; color: #4a4a6a; line-height: 1.6;">
+            Als je vragen hebt, neem dan contact op met de beheerders van het project.
+          </p>
+          <p style="font-size: 14px; color: #9ba1b0; margin-top: 32px;">
+            Dit is een automatisch bericht van ${projectName}.
+          </p>
+        </div>
+      `
+    } else {
+      return new Response(JSON.stringify({ error: 'Unknown email type' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Send via Resend
+    if (!RESEND_API_KEY) {
+      console.log(`[send-member-email] No RESEND_API_KEY set. Would send ${type} email to ${memberEmail}`)
+      return new Response(JSON.stringify({ success: true, dry_run: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `${FROM_NAME} <${FROM_EMAIL}>`,
+        to: [memberEmail],
+        subject,
+        html,
+      }),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      console.error('Resend error:', data)
+      return new Response(JSON.stringify({ error: 'Email send failed', details: data }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    return new Response(JSON.stringify({ success: true, id: data.id }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  } catch (err) {
+    console.error('Function error:', err)
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+})

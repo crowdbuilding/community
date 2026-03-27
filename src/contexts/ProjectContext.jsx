@@ -7,16 +7,21 @@ const ProjectContext = createContext(null)
 
 export function ProjectProvider({ children }) {
   const { projectId } = useParams()
-  const { user, memberships } = useAuth()
+  const { user, memberships, orgMemberships, isOrgAdmin, reload: reloadAuth } = useAuth()
   const [project, setProject] = useState(null)
   const [milestones, setMilestones] = useState([])
   const [loading, setLoading] = useState(true)
 
   const membership = memberships.find(m => m.project_id === projectId)
-  const role = membership?.role || 'guest'
+
+  // Org admins get admin access to all projects in their org
+  const isOrgAdminOfProject = isOrgAdmin && project?.organization_id &&
+    orgMemberships.some(om => om.organization_id === project.organization_id && om.role === 'admin')
+
+  const role = membership?.role || (isOrgAdminOfProject ? 'admin' : 'guest')
 
   useEffect(() => {
-    if (!projectId) return
+    if (!projectId || !user) return
 
     async function load() {
       setLoading(true)
@@ -26,11 +31,32 @@ export function ProjectProvider({ children }) {
       ])
       setProject(projectRes.data)
       setMilestones(milestonesRes.data || [])
+
+      // Auto-create admin membership for org admins visiting a project without membership
+      const proj = projectRes.data
+      const hasMembership = memberships.some(m => m.project_id === projectId)
+      if (!hasMembership && proj?.organization_id && isOrgAdmin) {
+        const isAdminOfOrg = orgMemberships.some(om =>
+          om.organization_id === proj.organization_id && om.role === 'admin'
+        )
+        if (isAdminOfOrg) {
+          const { error } = await supabase.from('memberships').insert({
+            profile_id: user.id,
+            project_id: projectId,
+            role: 'admin',
+          })
+          if (!error) {
+            // Reload auth to pick up new membership
+            reloadAuth()
+          }
+        }
+      }
+
       setLoading(false)
     }
 
     load()
-  }, [projectId])
+  }, [projectId, user])
 
   const branding = project ? {
     brand_primary_color: project.brand_primary_color,

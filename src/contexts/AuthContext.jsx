@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [profile, setProfile] = useState(null)
   const [memberships, setMemberships] = useState([])
+  const [orgMemberships, setOrgMemberships] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function AuthProvider({ children }) {
       } else {
         setProfile(null)
         setMemberships([])
+        setOrgMemberships([])
         setLoading(false)
       }
     })
@@ -34,21 +36,32 @@ export function AuthProvider({ children }) {
   }, [])
 
   async function loadProfile(userId) {
-    const [profileRes, membershipsRes] = await Promise.all([
+    const [profileRes, membershipsRes, orgRes] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', userId).single(),
       supabase.from('memberships').select('*, projects(*)').eq('profile_id', userId),
+      supabase.from('org_members').select('*, organization:organizations(*)').eq('profile_id', userId),
     ])
 
     setProfile(profileRes.data)
     setMemberships(membershipsRes.data || [])
+    setOrgMemberships(orgRes.data || [])
     setLoading(false)
   }
 
   const user = session?.user ?? null
   const isPlatformAdmin = profile?.is_platform_admin ?? false
+  // Org admin if user has any org_members record with role 'admin'
+  const isOrgAdmin = orgMemberships.some(om => om.role === 'admin')
+  // Primary org (first org membership)
+  const primaryOrg = orgMemberships[0]?.organization || null
+  const primaryOrgId = orgMemberships[0]?.organization_id || null
 
   return (
-    <AuthContext.Provider value={{ user, profile, memberships, isPlatformAdmin, loading, reload: () => user && loadProfile(user.id) }}>
+    <AuthContext.Provider value={{
+      user, profile, memberships, orgMemberships,
+      isPlatformAdmin, isOrgAdmin, primaryOrg, primaryOrgId,
+      loading, reload: () => user && loadProfile(user.id)
+    }}>
       {children}
     </AuthContext.Provider>
   )

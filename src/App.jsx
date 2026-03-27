@@ -4,39 +4,68 @@ import { ProjectProvider } from './contexts/ProjectContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { useProject } from './contexts/ProjectContext'
 import Layout from './components/Layout'
+import { ConfirmProvider } from './components/ConfirmDialog'
 import Login from './views/Login'
 import AuthCallback from './views/AuthCallback'
 import Dashboard from './views/Dashboard'
-import ProjectsOverview from './views/ProjectsOverview'
 import Updates from './views/Updates'
 import Community from './views/Community'
 import Events from './views/Events'
 import Members from './views/Members'
 import Settings from './views/Settings'
 import Roadmap from './views/Roadmap'
+import ProfessionalUpdates from './views/ProfessionalUpdates'
+import Documents from './views/Documents'
+import AdviseurTeam from './views/AdviseurTeam'
+import Profile from './views/Profile'
+import DocumentArchive from './views/DocumentArchive'
+import OrgDashboard from './views/OrgDashboard'
+import OrgSettings from './views/OrgSettings'
+import NewProject from './views/NewProject'
+import JoinProject from './views/JoinProject'
+import IntakeForm from './views/IntakeForm'
+import Ledenwerving from './views/Ledenwerving'
 
 function AuthGuard({ children }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="loading-page"><p>Laden...</p></div>
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) {
+    // Remember where the user wanted to go
+    const path = window.location.pathname
+    if (path && path !== '/' && path !== '/login') {
+      localStorage.setItem('redirectAfterLogin', path)
+    }
+    return <Navigate to="/login" replace />
+  }
   return children
 }
 
 function HomeRedirect() {
-  const { memberships, isPlatformAdmin, loading } = useAuth()
+  const { memberships, isOrgAdmin, primaryOrgId, loading } = useAuth()
   if (loading) return <div className="loading-page"><p>Laden...</p></div>
 
-  if (isPlatformAdmin) return <Navigate to="/projects" replace />
+  // Org admin → org dashboard
+  if (isOrgAdmin && primaryOrgId) return <Navigate to={`/org/${primaryOrgId}`} replace />
+  // Single project member → project
   if (memberships.length === 1) return <Navigate to={`/p/${memberships[0].project_id}`} replace />
-  if (memberships.length > 1) return <Navigate to="/projects" replace />
+  // Multi-project member → first project (TODO: project selector)
+  if (memberships.length > 1) return <Navigate to={`/p/${memberships[0].project_id}`} replace />
+
   return <div className="empty-state"><h2>Welkom</h2><p>Je bent nog niet lid van een project.</p></div>
+}
+
+function MemberGate() {
+  const { membership, loading } = useProject()
+  if (loading) return <div className="loading-page"><p>Laden...</p></div>
+  if (!membership) return <JoinProject />
+  return <Layout />
 }
 
 function ProjectShell() {
   return (
     <ProjectProvider>
       <ProjectThemeWrapper>
-        <Layout />
+        <MemberGate />
       </ProjectThemeWrapper>
     </ProjectProvider>
   )
@@ -56,23 +85,37 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
+          <ConfirmProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/intake/:projectId" element={<IntakeForm />} />
 
             <Route path="/" element={<AuthGuard><HomeRedirect /></AuthGuard>} />
-            <Route path="/projects" element={<AuthGuard><ProjectsOverview /></AuthGuard>} />
 
+            {/* Org-level routes */}
+            <Route path="/org/:orgId" element={<AuthGuard><OrgDashboard /></AuthGuard>} />
+            <Route path="/org/:orgId/settings" element={<AuthGuard><OrgSettings /></AuthGuard>} />
+            <Route path="/org/:orgId/new-project" element={<AuthGuard><NewProject /></AuthGuard>} />
+
+            {/* Project-level routes */}
             <Route path="/p/:projectId" element={<AuthGuard><ProjectShell /></AuthGuard>}>
               <Route index element={<Dashboard />} />
               <Route path="updates" element={<Updates />} />
+              <Route path="documenten" element={<Documents />} />
+              <Route path="pro-updates" element={<ProfessionalUpdates />} />
+              <Route path="adviseurs" element={<AdviseurTeam />} />
               <Route path="community" element={<Community />} />
               <Route path="events" element={<Events />} />
               <Route path="roadmap" element={<Roadmap />} />
+              <Route path="documents" element={<DocumentArchive />} />
               <Route path="members" element={<Members />} />
-              <Route path="settings" element={<Settings />} />
+              <Route path="ledenwerving" element={<Ledenwerving />} />
+              <Route path="profile" element={<Profile />} />
+              {/* Settings moved to org dashboard */}
             </Route>
           </Routes>
+          </ConfirmProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>

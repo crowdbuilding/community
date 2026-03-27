@@ -10,7 +10,7 @@ export function ThemeProvider({ children, projectBranding }) {
   useEffect(() => {
     localStorage.setItem('theme-mode', mode)
     // Clean Design System uses data-theme for dark mode
-    document.documentElement.setAttribute('data-theme', mode === 'dark' ? 'dark' : 'light')
+    document.documentElement.setAttribute('data-theme', mode)
   }, [mode])
 
   useEffect(() => {

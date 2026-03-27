@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
+const REACTION_EMOJIS = ['heart', 'thumbsup', 'lightbulb', 'question', 'celebrate']
+
 export function usePosts() {
   const { user } = useAuth()
   const { project } = useProject()
@@ -11,9 +13,9 @@ export function usePosts() {
 
   const projectId = project?.id
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (isInitial = false) => {
     if (!projectId) return
-    setLoading(true)
+    if (isInitial) setLoading(true)
 
     const { data, error } = await supabase
       .from('posts')
@@ -21,7 +23,10 @@ export function usePosts() {
         *,
         author:profiles!author_id(id, full_name, avatar_url),
         comments(count),
-        post_likes(profile_id)
+        post_likes(profile_id),
+        post_follows(profile_id),
+        post_reactions(id, emoji, profile_id),
+        poll_options(id, text, sort_order, poll_votes(id, profile_id))
       `)
       .eq('project_id', projectId)
       .eq('is_hidden', false)
@@ -31,19 +36,45 @@ export function usePosts() {
     if (error) {
       console.error('Error fetching posts:', error)
     } else {
-      // Transform: add like_count, comment_count, is_liked
-      const transformed = (data || []).map(p => ({
-        ...p,
-        comment_count: p.comments?.[0]?.count || 0,
-        like_count: p.post_likes?.length || 0,
-        is_liked: p.post_likes?.some(l => l.profile_id === user?.id) || false,
-      }))
+      const transformed = (data || []).map(p => {
+        // Aggregate reactions by emoji
+        const reactionCounts = {}
+        const myReactions = new Set()
+        ;(p.post_reactions || []).forEach(r => {
+          reactionCounts[r.emoji] = (reactionCounts[r.emoji] || 0) + 1
+          if (r.profile_id === user?.id) myReactions.add(r.emoji)
+        })
+
+        // Poll data
+        const pollOptions = (p.poll_options || [])
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map(o => ({
+            ...o,
+            vote_count: o.poll_votes?.length || 0,
+            my_vote: o.poll_votes?.some(v => v.profile_id === user?.id) || false,
+          }))
+        const totalVotes = pollOptions.reduce((sum, o) => sum + o.vote_count, 0)
+
+        return {
+          ...p,
+          comment_count: p.comments?.[0]?.count || 0,
+          like_count: p.post_likes?.length || 0,
+          is_liked: p.post_likes?.some(l => l.profile_id === user?.id) || false,
+          is_followed: p.post_follows?.some(f => f.profile_id === user?.id) || false,
+          reactions: reactionCounts,
+          myReactions,
+          totalReactions: Object.values(reactionCounts).reduce((s, c) => s + c, 0),
+          pollOptions,
+          totalVotes,
+          hasVoted: pollOptions.some(o => o.my_vote),
+        }
+      })
       setPosts(transformed)
     }
     setLoading(false)
   }, [projectId, user?.id])
 
-  useEffect(() => { fetchPosts() }, [fetchPosts])
+  useEffect(() => { fetchPosts(true) }, [fetchPosts])
 
   // Realtime
   useEffect(() => {
@@ -53,19 +84,43 @@ export function usePosts() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'posts', filter: `project_id=eq.${projectId}` }, () => fetchPosts())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => fetchPosts())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'post_likes' }, () => fetchPosts())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'post_reactions' }, () => fetchPosts())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, () => fetchPosts())
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [projectId, fetchPosts])
 
-  async function createPost({ text, tag, image_url }) {
+  async function createPost({ text, tag, image_url, post_type, poll_options }) {
     const { data, error } = await supabase
       .from('posts')
-      .insert({ project_id: projectId, author_id: user.id, text, tag: tag || null, image_url: image_url || null })
+      .insert({
+        project_id: projectId,
+        author_id: user.id,
+        text,
+        tag: tag || null,
+        image_url: image_url || null,
+        post_type: post_type || 'post',
+      })
       .select('*, author:profiles!author_id(id, full_name, avatar_url)')
       .single()
     if (error) throw error
-    // Optimistic add
-    setPosts(prev => [{ ...data, comment_count: 0, like_count: 0, is_liked: false }, ...prev])
+
+    // Create poll options if poll
+    if (post_type === 'poll' && poll_options?.length > 0) {
+      const { error: pollError } = await supabase.from('poll_options').insert(
+        poll_options.map((text, i) => ({ post_id: data.id, text, sort_order: i }))
+      )
+      if (pollError) {
+        console.error('Poll options error:', pollError)
+        throw new Error('Poll opties konden niet worden aangemaakt: ' + pollError.message)
+      }
+    }
+
+    // Auto-follow own posts (best-effort, don't throw)
+    try {
+      await supabase.from('post_follows').upsert({ profile_id: user.id, post_id: data.id }, { onConflict: 'profile_id,post_id' })
+    } catch (e) { /* ignore */ }
+    fetchPosts()
     return data
   }
 
@@ -82,6 +137,67 @@ export function usePosts() {
     }
   }
 
+  async function toggleReaction(postId, emoji) {
+    const post = posts.find(p => p.id === postId)
+    if (!post) return
+
+    const hadReaction = post.myReactions.has(emoji)
+
+    // Optimistic update
+    setPosts(prev => prev.map(p => {
+      if (p.id !== postId) return p
+      const newReactions = { ...p.reactions }
+      const newMyReactions = new Set(p.myReactions)
+      if (hadReaction) {
+        newReactions[emoji] = Math.max(0, (newReactions[emoji] || 1) - 1)
+        if (newReactions[emoji] === 0) delete newReactions[emoji]
+        newMyReactions.delete(emoji)
+      } else {
+        newReactions[emoji] = (newReactions[emoji] || 0) + 1
+        newMyReactions.add(emoji)
+      }
+      return {
+        ...p,
+        reactions: newReactions,
+        myReactions: newMyReactions,
+        totalReactions: Object.values(newReactions).reduce((s, c) => s + c, 0),
+      }
+    }))
+
+    // Server update
+    if (hadReaction) {
+      await supabase.from('post_reactions').delete().eq('post_id', postId).eq('profile_id', user.id).eq('emoji', emoji)
+    } else {
+      await supabase.from('post_reactions').insert({ post_id: postId, profile_id: user.id, emoji })
+    }
+  }
+
+  async function toggleFollow(postId) {
+    const post = posts.find(p => p.id === postId)
+    if (!post) return
+
+    if (post.is_followed) {
+      await supabase.from('post_follows').delete().eq('post_id', postId).eq('profile_id', user.id)
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_followed: false } : p))
+    } else {
+      await supabase.from('post_follows').insert({ post_id: postId, profile_id: user.id })
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, is_followed: true } : p))
+    }
+  }
+
+  async function votePoll(optionId) {
+    // Remove existing vote first (one vote per poll)
+    const post = posts.find(p => p.pollOptions?.some(o => o.id === optionId))
+    if (!post) return
+
+    // Remove old votes for this poll
+    const allOptionIds = post.pollOptions.map(o => o.id)
+    await supabase.from('poll_votes').delete().in('option_id', allOptionIds).eq('profile_id', user.id)
+    // Add new vote
+    await supabase.from('poll_votes').insert({ option_id: optionId, profile_id: user.id })
+    fetchPosts()
+  }
+
   async function togglePin(postId) {
     const post = posts.find(p => p.id === postId)
     if (!post) return
@@ -89,7 +205,22 @@ export function usePosts() {
     fetchPosts()
   }
 
-  return { posts, loading, createPost, toggleLike, togglePin, refetch: fetchPosts }
+  async function deletePost(postId) {
+    const { error } = await supabase.from('posts').delete().eq('id', postId)
+    if (error) {
+      console.error('Delete post error:', error)
+      throw error
+    }
+    setPosts(prev => prev.filter(p => p.id !== postId))
+  }
+
+  async function updatePost(postId, updates) {
+    const { error } = await supabase.from('posts').update(updates).eq('id', postId)
+    if (error) throw error
+    fetchPosts()
+  }
+
+  return { posts, loading, createPost, toggleLike, toggleReaction, toggleFollow, votePoll, togglePin, deletePost, updatePost, refetch: fetchPosts }
 }
 
 export function useComments(postId) {
@@ -111,10 +242,16 @@ export function useComments(postId) {
 
   useEffect(() => { fetchComments() }, [fetchComments])
 
-  async function addComment(text) {
+  async function addComment(text, replyToId, replyToName) {
     const { data, error } = await supabase
       .from('comments')
-      .insert({ post_id: postId, author_id: user.id, text })
+      .insert({
+        post_id: postId,
+        author_id: user.id,
+        text,
+        reply_to_id: replyToId || null,
+        reply_to_name: replyToName || null,
+      })
       .select('*, author:profiles(id, full_name, avatar_url)')
       .single()
     if (error) throw error

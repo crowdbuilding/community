@@ -1,167 +1,307 @@
 import { useState } from 'react'
-
-const PHASES = [
-  {
-    num: '1', name: 'Definitieve selectiefase', sub: 'Structuur Ontwerp',
-    period: 'Maart – Oktober 2025', color: '#4A90D9', members: 30,
-    items: [
-      { t: 'Start SO-fase', s: 'Lancering wervingscampagne OutForever', type: 'milestone', d: 'De selectiefase begint met een brede wervingscampagne om toekomstige bewoners te bereiken. Het doel is een diverse groep samen te brengen die de basis vormt voor de gemeenschap.' },
-      { t: 'Workshop 0: WoonConcept & Kernwaarden', s: 'Gezamenlijk de fundamenten leggen', type: 'workshop', d: 'Bewoners bepalen samen hun kernwaarden en hoe die vertaald worden naar het woonconcept. Thema\'s als duurzaamheid, gemeenschapszin en diversiteit.' },
-      { t: 'Formatie teams', s: 'Welzijn & Zorg (2–4), Bouwteam (3–6), Ledenteam (2–4)', type: 'team', d: 'Drie werkgroepen worden geformeerd: welzijn & zorg voor sociale cohesie, het bouwteam voor technische begeleiding, en het ledenteam voor communicatie en werving.' },
-      { t: 'Kennismakingsbijeenkomst', s: 'Groepsvorming intensiveren', type: 'milestone', d: 'Een informele bijeenkomst waar alle geïnteresseerden elkaar leren kennen. Vertrouwen opbouwen en groepsdynamiek versterken.' },
-      { t: 'Workshop 1: Collectieve Ruimtes', s: '"Wat willen we delen?"', type: 'workshop', d: 'Van gemeenschappelijke tuin tot gedeelde werkplekken, wasruimte of logeerkamer — hier worden de collectieve ambities concreet.' },
-      { t: 'Workshop 2: Welzijn & Gezondheid', s: 'Omkijken naar elkaar', type: 'workshop', d: 'Zorgconcepten, mantelzorgondersteuning en welzijnsvoorzieningen die in het ontwerp geïntegreerd kunnen worden.' },
-      { t: 'Workshop 3: Ontwerpkeuzes', s: 'Semi-open of gesloten, collectief en privaat', type: 'workshop', d: 'De balans tussen openheid en privacy. Hoe verhouden collectieve ruimtes zich tot privéwoningen?' },
-      { t: 'Sociaal Bestek', s: 'Vastlegging sociale afspraken', type: 'special', d: 'Formeel document dat de sociale afspraken, waarden en ambities vastlegt. Leidraad voor het verdere ontwerpproces.' },
-      { t: 'Workshop 4: Structuur en Leven', s: 'Groene binnentuin, flexibiliteit in SO', type: 'workshop', d: 'Het structuurontwerp vertaald naar leefbaarheid: groene buitenruimtes en flexibiliteit voor toekomstige aanpassingen.' },
-      { t: 'SO indieningdocumenten vaststellen', s: 'Formele documenten structuurontwerp', type: 'key', d: 'Cruciale milestone: het SO vormt de basis voor het verdere ontwerp en de vergunningaanvraag.' },
-    ]
-  },
-  {
-    num: '2', name: 'Ontwikkelfase', sub: 'Voorlopig Ontwerp',
-    period: 'Januari – April 2026', color: '#F09020', members: 71,
-    items: [
-      { t: 'Formalisering Vereniging Vlinderhaven', s: 'Van informeel naar formeel', type: 'formeel', d: 'De informele bewonersgroep wordt een officiële vereniging. Statuten opgesteld, bestuur gekozen, formele structuur vastgelegd.' },
-      { t: 'Workshop 5: Collectieve ruimten en ontsluiting', s: 'Collectiviteit en programmering', type: 'workshop', d: 'Hoe worden gedeelde voorzieningen ontsloten? Welke programmering krijgen ze? Hoe wordt collectief gebruik georganiseerd?' },
-      { t: 'Workshop 6: Gevelprincipes', s: 'Materialisatie en architectuur', type: 'workshop', d: 'Welke materialen worden gebruikt? Wat is de architectonische identiteit van Vlinderhaven? Duurzaamheid en esthetiek komen samen.' },
-      { t: 'Workshop 7: Installatieprincipes', s: 'Ambities bepalen', type: 'workshop', d: 'Energiesystemen, warmtevoorziening, ventilatie en duurzaamheidsdoelen. BENG-normen en circulariteit staan centraal.' },
-      { t: 'Voorlopige woningvoorkeur', s: 'Eerste indicatie woningkeuze', type: 'key', d: 'Bewoners geven een eerste indicatie van hun woningvoorkeur. Het project wordt persoonlijk.' },
-      { t: 'VO indieningdocumenten vaststellen', s: 'Formele documentatie VO', type: 'milestone', d: 'Alle documenten voor het Voorlopig Ontwerp verzameld en vastgesteld voor gemeente en toetsende instanties.' },
-      { t: 'VO-toets gemeente + BENG/MPG', s: 'Gemeentelijke en duurzaamheidstoetsing', type: 'formeel', d: 'Toetsing op BENG (energieprestatie) en MPG (milieuprestatie). Eventuele aanpassingen worden verwerkt.' },
-    ]
-  },
-  {
-    num: '3', name: 'Ontwikkelfase', sub: 'Definitief Ontwerp',
-    period: 'Mei – November 2026', color: '#3BD269', members: 108,
-    items: [
-      { t: 'Reserveringsovereenkomst', s: 'Bewoners committeren zich formeel', type: 'formeel', d: 'Bewoners leggen hun intentie vast om een woning af te nemen. Financieel en emotioneel belangrijk moment.' },
-      { t: 'Workshop 8: Definitieve keuze installaties', s: 'Technische systemen vastleggen', type: 'workshop', d: 'Warmtepompen, zonnepanelen, ventilatiesystemen en slimme gebouwtechniek.' },
-      { t: 'Workshop 9: VvE Huishoudelijk Reglement', s: 'Beheer & Exploitatie', type: 'workshop', d: 'Kostenverdeling, beheer collectieve ruimtes, regels en afspraken voor de VvE.' },
-      { t: 'Individuele woningontwerpgesprekken', s: 'Persoonlijke afstemming per huishouden', type: 'milestone', d: 'Individuele gesprekken over woningwensen: indelingskeuzes, afwerkingsniveau en meerwerk-opties.' },
-      { t: 'Definitieve woningvoorkeur', s: 'Definitieve woningkeuze', type: 'key', d: 'Bewoners maken hun definitieve keuze. De toewijzing wordt vastgelegd — het moment waarop de woning "van jou" wordt.' },
-      { t: 'Maximale VON-prijs', s: 'Vrij-op-naam prijs vastgesteld', type: 'milestone', d: 'Financiële zekerheid voor bewoners en basis voor hypotheekaanvragen.' },
-      { t: 'DO indieningdocumenten vaststellen', s: 'DO-pakket gereed', type: 'key', d: 'Het complete Definitief Ontwerp afgerond. Alle technische, financiële en sociale onderdelen uitgewerkt.' },
-      { t: 'DO-toets gemeente + BENG/MPG', s: 'Finale gemeentelijke toetsing', type: 'formeel', d: 'Beoordeling op ruimtelijke, energetische en milieutechnische criteria.' },
-    ]
-  },
-  {
-    num: '4', name: 'Vergunningsfase', sub: 'Uitwerking',
-    period: 'December 2026 – Februari 2027', color: '#F23578', members: 122,
-    items: [
-      { t: 'Indiening Omgevingsvergunning', s: 'Formele aanvraag bij de gemeente', type: 'key', d: 'Een van de belangrijkste formele stappen — zonder vergunning kan er niet gebouwd worden.' },
-      { t: 'Documenteren omgevingsvergunning', s: 'Aanvullende documentatie', type: 'milestone', d: 'Eventueel gevraagde aanvullende documenten. De gemeente kan verduidelijking vragen over specifieke onderdelen.' },
-    ]
-  },
-  {
-    num: '5', name: 'Uitvoeringsfase', sub: 'Technisch Ontwerp',
-    period: 'Februari – April 2027', color: '#F4B400', members: null,
-    items: [
-      { t: 'Showroom-meetings', s: 'Materialen en afwerkingen bekijken', type: 'milestone', d: 'Bewoners bekijken materialen, kleuren en afwerkingen in het echt en maken definitieve keuzes.' },
-      { t: 'Verkregen Omgevingsvergunning', s: 'De vergunning is verleend!', type: 'key', d: 'Een feestelijk moment — het project mag officieel gebouwd worden.' },
-      { t: 'TO fasedocumenten', s: 'Technisch ontwerp voor de aannemer', type: 'formeel', d: 'Gedetailleerde bouwtekeningen en bestekken waarop de bouw gebaseerd wordt.' },
-      { t: 'Acceptatie erfpacht', s: 'Erfpachtovereenkomst getekend', type: 'formeel', d: 'De erfpachtovereenkomst met de gemeente regelt het gebruik van de grond.' },
-    ]
-  },
-  {
-    num: '6', name: 'Bouw- en inbouwfase', sub: '',
-    period: 'Mei 2027 – Oplevering 2029', color: '#7C5CFC', members: 150,
-    items: [
-      { t: 'Start bouw', s: 'Eerste werkzaamheden op de bouwplaats', type: 'key', d: 'Na jaren van voorbereiding begint de daadwerkelijke bouw. De droom wordt werkelijkheid.' },
-      { t: 'Kijkdagen', s: 'Bewoners bezoeken de bouwplaats', type: 'milestone', d: 'Bewoners zien de voortgang met eigen ogen. Je ziet je toekomstige thuis vorm krijgen.' },
-      { t: 'Oplevering', s: 'Vlinderhaven is klaar!', type: 'key', d: 'Het gebouw wordt opgeleverd. Na een lang traject is Vlinderhaven een feit. Welkom thuis!' },
-    ]
-  }
-]
+import { useProject } from '../contexts/ProjectContext'
+import { useRoadmap } from '../hooks/useRoadmap'
+import { canDo } from '../lib/permissions'
+import ConfirmModal from '../components/ConfirmModal'
 
 const TAG_MAP = {
-  workshop: { label: 'Workshop', cls: 'roadmap-tag--blue' },
+  workshop:  { label: 'Workshop',  cls: 'roadmap-tag--blue' },
   milestone: { label: 'Milestone', cls: 'roadmap-tag--orange' },
-  key: { label: 'Mijlpaal', cls: 'roadmap-tag--pink' },
-  formeel: { label: 'Formeel', cls: 'roadmap-tag--green' },
-  team: { label: 'Team', cls: 'roadmap-tag--muted' },
-  special: { label: 'Document', cls: 'roadmap-tag--green' },
+  key:       { label: 'Mijlpaal',  cls: 'roadmap-tag--pink' },
+  formeel:   { label: 'Formeel',   cls: 'roadmap-tag--green' },
+  team:      { label: 'Team',      cls: 'roadmap-tag--muted' },
+  special:   { label: 'Document',  cls: 'roadmap-tag--green' },
 }
 
-function RoadmapItem({ item }) {
-  const [open, setOpen] = useState(false)
-  const tag = TAG_MAP[item.type] || TAG_MAP.workshop
-  const isKey = item.type === 'key'
-  const isSpecial = item.type === 'special'
+const ITEM_TYPES = Object.keys(TAG_MAP)
 
-  let dotCls = 'roadmap-dot--step'
-  if (item.type === 'key') dotCls = 'roadmap-dot--key'
-  else if (item.type === 'milestone') dotCls = 'roadmap-dot--milestone'
+const STATUS_OPTIONS = [
+  { value: 'done', label: 'Afgerond', color: '#3BD269' },
+  { value: 'active', label: 'Actief', color: '#4A90D9' },
+  { value: 'pending', label: 'Gepland', color: '#9ba1b0' },
+]
+
+function RoadmapItem({ item, canEdit, onUpdate, onRemove, onToggleDone }) {
+  const [open, setOpen] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [form, setForm] = useState({})
+  const tag = TAG_MAP[item.type] || TAG_MAP.milestone
+  const dotCls = item.type === 'key' ? 'roadmap-dot--key' : item.type === 'milestone' ? 'roadmap-dot--milestone' : 'roadmap-dot--step'
+
+  function startEdit(e) {
+    e.stopPropagation()
+    setForm({ title: item.title, snippet: item.snippet || '', description: item.description || '', type: item.type })
+    setEditing(true)
+  }
+
+  function saveEdit() {
+    onUpdate(item.id, form)
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="roadmap-item roadmap-item--editing">
+        <div className="roadmap-dot roadmap-dot--step" />
+        <div className="roadmap-item__edit-form">
+          <input className="input" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="Titel" />
+          <input className="input" value={form.snippet} onChange={e => setForm({ ...form, snippet: e.target.value })} placeholder="Korte beschrijving" />
+          <textarea className="input" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Uitgebreide beschrijving" rows={3} />
+          <div className="roadmap-item__edit-row">
+            <select className="input" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+              {ITEM_TYPES.map(t => <option key={t} value={t}>{TAG_MAP[t].label}</option>)}
+            </select>
+            <div className="roadmap-item__edit-actions">
+              <button className="btn-secondary btn-sm" onClick={() => setEditing(false)}>Annuleren</button>
+              <button className="btn-primary btn-sm" onClick={saveEdit}>Opslaan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className={`roadmap-item ${open ? 'roadmap-item--open' : ''} ${isSpecial ? 'roadmap-item--special' : ''}`} onClick={() => setOpen(!open)}>
-      <div className={`roadmap-dot ${isSpecial ? 'roadmap-dot--special' : dotCls}`} />
+    <div className={`roadmap-item ${open ? 'roadmap-item--open' : ''} ${item.is_done ? 'roadmap-item--done' : ''}`} onClick={() => setOpen(!open)}>
+      {canEdit && (
+        <button className="roadmap-item__check" onClick={e => { e.stopPropagation(); onToggleDone(item.id, !item.is_done) }} title={item.is_done ? 'Markeer als open' : 'Markeer als afgerond'}>
+          <i className={`fa-${item.is_done ? 'solid' : 'regular'} fa-circle-check`} />
+        </button>
+      )}
+      <div className={`roadmap-dot ${item.type === 'special' ? 'roadmap-dot--special' : dotCls} ${item.is_done ? 'roadmap-dot--done' : ''}`} />
       <div className="roadmap-item__content">
         <div className="roadmap-item__top">
-          <span className={`roadmap-item__title ${isKey ? 'roadmap-item__title--key' : ''}`}>{item.t}</span>
+          <span className={`roadmap-item__title ${item.type === 'key' ? 'roadmap-item__title--key' : ''} ${item.is_done ? 'roadmap-item__title--done' : ''}`}>
+            {item.title}
+          </span>
           <span className={`roadmap-tag ${tag.cls}`}>{tag.label}</span>
         </div>
-        {item.s && <div className="roadmap-item__snippet">{item.s}</div>}
-        {open && (
-          <div className="roadmap-item__detail">{item.d}</div>
+        {item.snippet && <div className="roadmap-item__snippet">{item.snippet}</div>}
+        {open && item.description && (
+          <div className="roadmap-item__detail">{item.description}</div>
         )}
       </div>
+      {canEdit && (
+        <div className="roadmap-item__admin" onClick={e => e.stopPropagation()}>
+          <button className="btn-icon btn-sm" onClick={startEdit} title="Bewerken"><i className="fa-solid fa-pen" /></button>
+          <button className="btn-icon btn-sm" onClick={() => onRemove(item.id)} title="Verwijderen"><i className="fa-solid fa-trash" /></button>
+        </div>
+      )}
       <i className={`fa-solid fa-chevron-down roadmap-item__chevron ${open ? 'roadmap-item__chevron--open' : ''}`} />
     </div>
   )
 }
 
-function RoadmapPhase({ phase, defaultOpen }) {
-  const [open, setOpen] = useState(defaultOpen)
+function RoadmapPhase({ phase, canEdit, onUpdatePhase, onRemovePhase, onAddItem, onUpdateItem, onRemoveItem, onToggleItemDone }) {
+  const [open, setOpen] = useState(phase.status === 'active')
+  const [editingPhase, setEditingPhase] = useState(false)
+  const [form, setForm] = useState({})
+  const [addingItem, setAddingItem] = useState(false)
+  const [newItem, setNewItem] = useState({ title: '', snippet: '', description: '', type: 'milestone' })
+  const [confirmDelete, setConfirmDelete] = useState(false)
+
+  const doneItems = phase.items?.filter(i => i.is_done).length || 0
+  const totalItems = phase.items?.length || 0
+
+  function startEditPhase(e) {
+    e.stopPropagation()
+    setForm({ name: phase.name, subtitle: phase.subtitle || '', period: phase.period || '', color: phase.color || '#4A90D9', status: phase.status })
+    setEditingPhase(true)
+  }
+
+  function savePhase() {
+    onUpdatePhase(phase.id, form)
+    setEditingPhase(false)
+  }
+
+  function handleAddItem() {
+    if (!newItem.title.trim()) return
+    onAddItem(phase.id, newItem)
+    setNewItem({ title: '', snippet: '', description: '', type: 'milestone' })
+    setAddingItem(false)
+  }
+
+  const statusInfo = STATUS_OPTIONS.find(s => s.value === phase.status) || STATUS_OPTIONS[2]
 
   return (
-    <div className={`roadmap-phase ${open ? 'roadmap-phase--open' : ''}`}>
+    <div className={`roadmap-phase ${open ? 'roadmap-phase--open' : ''} roadmap-phase--${phase.status}`}>
       <div className="roadmap-phase__head" onClick={() => setOpen(!open)}>
         <div className="roadmap-phase__num" style={{ background: phase.color }}>{phase.num}</div>
         <div className="roadmap-phase__info">
           <div className="roadmap-phase__name">
-            {phase.name}{phase.sub ? ` — ${phase.sub}` : ''}
+            {phase.name}{phase.subtitle ? ` — ${phase.subtitle}` : ''}
           </div>
-          <div className="roadmap-phase__period">{phase.period}</div>
+          <div className="roadmap-phase__period">
+            {phase.period}
+            {totalItems > 0 && (
+              <span className="roadmap-phase__progress"> · {doneItems}/{totalItems} afgerond</span>
+            )}
+          </div>
         </div>
         <div className="roadmap-phase__meta">
-          {phase.members && (
+          <span className="roadmap-phase__status" style={{ color: statusInfo.color }}>{statusInfo.label}</span>
+          {phase.expected_members && (
             <span className="roadmap-phase__members">
-              <i className="fa-solid fa-users" /> {phase.members}
+              <i className="fa-solid fa-users" /> {phase.expected_members}
             </span>
+          )}
+          {canEdit && (
+            <button className="btn-icon btn-sm" onClick={startEditPhase} title="Fase bewerken">
+              <i className="fa-solid fa-pen" />
+            </button>
           )}
           <i className={`fa-solid fa-chevron-down roadmap-phase__chevron ${open ? 'roadmap-phase__chevron--open' : ''}`} />
         </div>
       </div>
+
+      {/* Phase edit form */}
+      {editingPhase && (
+        <div className="roadmap-phase__edit" onClick={e => e.stopPropagation()}>
+          <div className="roadmap-phase__edit-grid">
+            <div className="form-group">
+              <label>Naam</label>
+              <input className="input" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Subtitel</label>
+              <input className="input" value={form.subtitle} onChange={e => setForm({ ...form, subtitle: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Periode</label>
+              <input className="input" value={form.period} onChange={e => setForm({ ...form, period: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label>Status</label>
+              <select className="input" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                {STATUS_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Kleur</label>
+              <input className="input" type="color" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })} />
+            </div>
+          </div>
+          <div className="roadmap-phase__edit-actions">
+            <button className="btn-danger btn-sm" onClick={() => setConfirmDelete(true)}>
+              <i className="fa-solid fa-trash" /> Verwijder fase
+            </button>
+            <div className="roadmap-phase__edit-right">
+              <button className="btn-secondary btn-sm" onClick={() => setEditingPhase(false)}>Annuleren</button>
+              <button className="btn-primary btn-sm" onClick={savePhase}>Opslaan</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Items */}
       {open && (
         <div className="roadmap-phase__body">
-          {phase.items.map((item, i) => (
-            <RoadmapItem key={i} item={item} />
+          {(phase.items || []).map(item => (
+            <RoadmapItem
+              key={item.id}
+              item={item}
+              canEdit={canEdit}
+              onUpdate={onUpdateItem}
+              onRemove={onRemoveItem}
+              onToggleDone={onToggleItemDone}
+            />
           ))}
+
+          {canEdit && !addingItem && (
+            <button className="roadmap-add-item" onClick={() => setAddingItem(true)}>
+              <i className="fa-solid fa-plus" /> Stap toevoegen
+            </button>
+          )}
+
+          {addingItem && (
+            <div className="roadmap-item roadmap-item--editing">
+              <div className="roadmap-dot roadmap-dot--step" />
+              <div className="roadmap-item__edit-form">
+                <input className="input" value={newItem.title} onChange={e => setNewItem({ ...newItem, title: e.target.value })} placeholder="Titel" autoFocus />
+                <input className="input" value={newItem.snippet} onChange={e => setNewItem({ ...newItem, snippet: e.target.value })} placeholder="Korte beschrijving" />
+                <div className="roadmap-item__edit-row">
+                  <select className="input" value={newItem.type} onChange={e => setNewItem({ ...newItem, type: e.target.value })}>
+                    {ITEM_TYPES.map(t => <option key={t} value={t}>{TAG_MAP[t].label}</option>)}
+                  </select>
+                  <div className="roadmap-item__edit-actions">
+                    <button className="btn-secondary btn-sm" onClick={() => setAddingItem(false)}>Annuleren</button>
+                    <button className="btn-primary btn-sm" onClick={handleAddItem}>Toevoegen</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+      )}
+
+      {confirmDelete && (
+        <ConfirmModal
+          message={`Fase "${phase.name}" en alle stappen verwijderen?`}
+          confirmLabel="Verwijderen"
+          danger
+          onConfirm={() => { onRemovePhase(phase.id); setConfirmDelete(false) }}
+          onCancel={() => setConfirmDelete(false)}
+        />
       )}
     </div>
   )
 }
 
 export default function Roadmap() {
+  const { project, role } = useProject()
+  const { phases, loading, addPhase, updatePhase, removePhase, addItem, updateItem, removeItem, toggleItemDone } = useRoadmap(project?.id)
+  const isEditor = canDo(role, 'edit_phases')
+
+  if (loading) return <div className="loading-page"><p>Laden...</p></div>
+
   return (
     <div className="view-roadmap">
       <div className="view-header">
-        <span className="view-header__eyebrow">Ontwikkeltraject</span>
-        <h1>Roadmap</h1>
+        <div className="view-header__row">
+          <div>
+            <span className="view-header__eyebrow">Ontwikkeltraject</span>
+            <h1>Roadmap</h1>
+          </div>
+          {isEditor && (
+            <button className="btn-primary" onClick={() => addPhase({ name: 'Nieuwe fase' })}>
+              <i className="fa-solid fa-plus" /> Fase toevoegen
+            </button>
+          )}
+        </div>
         <p className="view-header__subtitle">
-          Van structuurontwerp tot oplevering — workshops, milestones en formele stappen in zes fasen.
+          Van structuurontwerp tot oplevering — workshops, milestones en formele stappen in {phases.length} fasen.
         </p>
       </div>
 
-      <div className="roadmap-phases">
-        {PHASES.map((phase, i) => (
-          <div key={phase.num}>
-            {i > 0 && <div className="roadmap-connector" />}
-            <RoadmapPhase phase={phase} defaultOpen={false} />
-          </div>
-        ))}
-      </div>
+      {phases.length === 0 ? (
+        <div className="empty-state">
+          <i className="fa-solid fa-route empty-state__icon" />
+          <p>Nog geen roadmap aangemaakt.</p>
+          {isEditor && (
+            <button className="btn-primary" onClick={() => addPhase({ name: 'Eerste fase' })}>
+              <i className="fa-solid fa-plus" /> Eerste fase aanmaken
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="roadmap-phases">
+          {phases.map((phase, i) => (
+            <div key={phase.id}>
+              {i > 0 && <div className="roadmap-connector" />}
+              <RoadmapPhase
+                phase={phase}
+                canEdit={isEditor}
+                onUpdatePhase={updatePhase}
+                onRemovePhase={removePhase}
+                onAddItem={addItem}
+                onUpdateItem={updateItem}
+                onRemoveItem={removeItem}
+                onToggleItemDone={toggleItemDone}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -217,6 +217,54 @@
 }
 
 /* ============================================================================
+   WARM THEME TOKENS
+   Beige/sand neutrals — inspired by Claude's warm interface.
+   Only neutrals change; accent colors get a subtle warm shift.
+   ============================================================================ */
+
+[data-theme="warm"] {
+  --bg-page:             #F3F1ED;
+  --bg-surface:          #FFFFFF;
+  --bg-hover:            #EDECEA;
+  --bg-active:           #E5E4E0;
+  --bg-selected:         #E9E7E3;
+
+  --text-primary:        #1A1A2E;
+  --text-secondary:      #5A5F72;
+  --text-tertiary:       #9BA1B0;
+  --text-faint:          #B0B5C3;
+  --text-disabled:       #CDD1DB;
+
+  --border-default:      #EBE4DC;
+  --border-subtle:       #DED6CC;
+
+  --tag-blue-bg:         rgba(91, 142, 196, 0.14);
+  --tag-blue-text:       #4A7AB0;
+  --tag-yellow-bg:       rgba(212, 164, 58, 0.14);
+  --tag-yellow-text:     #9E7A20;
+  --tag-red-bg:          rgba(200, 80, 65, 0.14);
+  --tag-red-text:        #B04030;
+  --tag-green-bg:        rgba(90, 174, 108, 0.14);
+  --tag-green-text:      #3D8A50;
+  --tag-pink-bg:         rgba(212, 86, 122, 0.14);
+  --tag-pink-text:       #B83D68;
+  --tag-purple-bg:       rgba(140, 85, 160, 0.14);
+  --tag-purple-text:     #7A4890;
+  --tag-orange-bg:       rgba(207, 132, 50, 0.14);
+  --tag-orange-text:     #A86A20;
+
+  --shadow-xs:           0 1px 2px rgba(44, 37, 32, 0.05);
+  --shadow-sm:           0 1px 3px rgba(44, 37, 32, 0.07),
+                         0 1px 2px rgba(44, 37, 32, 0.04);
+  --shadow-md:           0 4px 12px rgba(44, 37, 32, 0.09),
+                         0 1px 3px rgba(44, 37, 32, 0.05);
+  --shadow-lg:           0 12px 40px rgba(44, 37, 32, 0.13),
+                         0 4px 12px rgba(44, 37, 32, 0.07);
+  --shadow-xl:           0 20px 60px rgba(44, 37, 32, 0.17),
+                         0 8px 20px rgba(44, 37, 32, 0.09);
+}
+
+/* ============================================================================
    DARK THEME TOKENS
    Clean has a beautiful dark mode. Override neutrals only.
    ============================================================================ */

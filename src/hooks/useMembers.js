@@ -2,6 +2,18 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useProject } from '../contexts/ProjectContext'
 
+async function sendMemberEmail(type, { memberName, memberEmail, projectName, reason }) {
+  try {
+    const { error } = await supabase.functions.invoke('send-member-email', {
+      body: { type, memberName, memberEmail, projectName, reason },
+    })
+    if (error) console.error('Email send error:', error)
+  } catch (err) {
+    // Email is best-effort — don't block the action
+    console.error('Email function error:', err)
+  }
+}
+
 export function useMembers() {
   const { project } = useProject()
   const [members, setMembers] = useState([])
@@ -15,7 +27,7 @@ export function useMembers() {
 
     const { data, error } = await supabase
       .from('memberships')
-      .select('*, profile:profiles(id, full_name, avatar_url, is_platform_admin)')
+      .select('*, profile:profiles(id, full_name, avatar_url, email, is_platform_admin, company, bio, phone, website, professional_type)')
       .eq('project_id', projectId)
       .order('joined_at', { ascending: true })
 
@@ -50,8 +62,34 @@ export function useMembers() {
   }
 
   async function approveMember(membershipId) {
-    return updateRole(membershipId, 'member')
+    const member = members.find(m => m.id === membershipId)
+    await updateRole(membershipId, 'aspirant')
+
+    // Send welcome email (best-effort)
+    if (member?.profile) {
+      sendMemberEmail('welcome', {
+        memberName: member.profile.full_name,
+        memberEmail: member.profile.email,
+        projectName: project?.name,
+      })
+    }
   }
 
-  return { members, loading, updateRole, removeMember, approveMember, refetch: fetchMembers }
+  async function rejectMember(membershipId, reason) {
+    const member = members.find(m => m.id === membershipId)
+
+    // Send rejection email before deleting
+    if (member?.profile) {
+      await sendMemberEmail('rejection', {
+        memberName: member.profile.full_name,
+        memberEmail: member.profile.email,
+        projectName: project?.name,
+        reason,
+      })
+    }
+
+    await removeMember(membershipId)
+  }
+
+  return { members, loading, updateRole, removeMember, approveMember, rejectMember, refetch: fetchMembers }
 }

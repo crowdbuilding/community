@@ -10,10 +10,16 @@ export default function AuthCallback() {
     if (handled.current) return
     handled.current = true
 
+    function redirectAfterLogin() {
+      const saved = localStorage.getItem('redirectAfterLogin')
+      localStorage.removeItem('redirectAfterLogin')
+      navigate(saved || '/', { replace: true })
+    }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         subscription.unsubscribe()
-        navigate('/', { replace: true })
+        redirectAfterLogin()
       }
     })
 
@@ -26,7 +32,7 @@ export default function AuthCallback() {
           const { data } = await supabase.auth.exchangeCodeForSession(code)
           if (data?.session) {
             subscription.unsubscribe()
-            navigate('/', { replace: true })
+            redirectAfterLogin()
             return
           }
         }
@@ -34,7 +40,7 @@ export default function AuthCallback() {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
           subscription.unsubscribe()
-          navigate('/', { replace: true })
+          redirectAfterLogin()
           return
         }
 

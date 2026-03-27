@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
 export function useEvents() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { project } = useProject()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -17,7 +17,7 @@ export function useEvents() {
 
     const { data, error } = await supabase
       .from('meetings')
-      .select('*, event_rsvps(profile_id, status)')
+      .select('*, event_rsvps(profile_id, status, profile:profiles(full_name, avatar_url)), meeting_files(id)')
       .eq('project_id', projectId)
       .order('date', { ascending: true })
 
@@ -29,6 +29,7 @@ export function useEvents() {
         going_count: e.event_rsvps?.filter(r => r.status === 'going').length || 0,
         maybe_count: e.event_rsvps?.filter(r => r.status === 'maybe').length || 0,
         my_rsvp: e.event_rsvps?.find(r => r.profile_id === user?.id)?.status || null,
+        file_count: e.meeting_files?.length || 0,
       }))
       setEvents(transformed)
     }
@@ -48,13 +49,14 @@ export function useEvents() {
     return () => supabase.removeChannel(channel)
   }, [projectId, fetchEvents])
 
-  const upcoming = events.filter(e => new Date(e.date) >= new Date() || e.status === 'upcoming')
-  const past = events.filter(e => new Date(e.date) < new Date() && e.status !== 'upcoming')
+  const now = new Date()
+  const upcoming = events.filter(e => new Date(e.date) >= now)
+  const past = events.filter(e => new Date(e.date) < now)
 
-  async function createEvent({ title, description, date, location, online_url, max_attendees, image_url }) {
+  async function createEvent({ title, description, date, location, online_url, max_attendees, duration_hours, event_type, image_url }) {
     const { data, error } = await supabase
       .from('meetings')
-      .insert({ project_id: projectId, title, description, date, location, online_url, max_attendees, image_url })
+      .insert({ project_id: projectId, title, description, date, location, online_url, max_attendees, duration_hours, event_type, image_url })
       .select('*')
       .single()
     if (error) throw error
@@ -62,23 +64,32 @@ export function useEvents() {
     return data
   }
 
+  async function updateEvent(eventId, updates) {
+    const { error } = await supabase
+      .from('meetings')
+      .update(updates)
+      .eq('id', eventId)
+    if (error) throw error
+    fetchEvents()
+  }
+
   async function rsvp(meetingId, status) {
-    // Upsert: insert or update
     if (status === null) {
-      // Remove RSVP
-      await supabase.from('event_rsvps').delete().eq('meeting_id', meetingId).eq('profile_id', user.id)
+      const { error } = await supabase.from('event_rsvps').delete().eq('meeting_id', meetingId).eq('profile_id', user.id)
+      if (error) console.error('RSVP delete error:', error)
     } else {
-      await supabase.from('event_rsvps').upsert({
+      const { error } = await supabase.from('event_rsvps').upsert({
         meeting_id: meetingId,
         profile_id: user.id,
         status,
       }, { onConflict: 'profile_id,meeting_id' })
+      if (error) console.error('RSVP upsert error:', error)
     }
     // Optimistic update
     setEvents(prev => prev.map(e => {
       if (e.id !== meetingId) return e
       const rsvps = (e.event_rsvps || []).filter(r => r.profile_id !== user.id)
-      if (status) rsvps.push({ profile_id: user.id, status })
+      if (status) rsvps.push({ profile_id: user.id, status, profile: { full_name: profile?.full_name, avatar_url: profile?.avatar_url } })
       return {
         ...e,
         event_rsvps: rsvps,
@@ -89,5 +100,5 @@ export function useEvents() {
     }))
   }
 
-  return { events, upcoming, past, loading, createEvent, rsvp, refetch: fetchEvents }
+  return { events, upcoming, past, loading, createEvent, updateEvent, rsvp, refetch: fetchEvents }
 }

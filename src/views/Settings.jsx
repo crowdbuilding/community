@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useProject } from '../contexts/ProjectContext'
 import { supabase } from '../lib/supabase'
+import { uploadImage } from '../lib/storage'
+import useIntakeQuestions from '../hooks/useIntakeQuestions'
+import IntakeQuestionEditor from '../components/IntakeQuestionEditor'
 
 export default function Settings() {
   const { project, milestones, loading: projectLoading } = useProject()
@@ -11,8 +14,15 @@ export default function Settings() {
   const [primaryColor, setPrimaryColor] = useState('#4A90D9')
   const [accentColor, setAccentColor] = useState('#3BD269')
   const [defaultTheme, setDefaultTheme] = useState('light')
+  const [coverImageUrl, setCoverImageUrl] = useState('')
+  const [coverPreview, setCoverPreview] = useState('')
+  const [uploadingCover, setUploadingCover] = useState(false)
+  const coverRef = useRef(null)
+  const [intakeEnabled, setIntakeEnabled] = useState(false)
+  const [intakeIntro, setIntakeIntro] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const { questions, addQuestion, updateQuestion, deleteQuestion, reorderQuestions } = useIntakeQuestions(project?.id)
 
   useEffect(() => {
     if (project) {
@@ -23,8 +33,33 @@ export default function Settings() {
       setPrimaryColor(project.brand_primary_color || '#4A90D9')
       setAccentColor(project.brand_accent_color || '#3BD269')
       setDefaultTheme(project.default_theme || 'light')
+      setCoverImageUrl(project.cover_image_url || '')
+      setCoverPreview(project.cover_image_url || '')
+      setIntakeEnabled(project.intake_enabled || false)
+      setIntakeIntro(project.intake_intro_text || '')
     }
   }, [project])
+
+  async function handleCoverSelect(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverPreview(URL.createObjectURL(file))
+    setUploadingCover(true)
+    try {
+      const url = await uploadImage(file)
+      setCoverImageUrl(url)
+    } catch (err) {
+      console.error('Cover upload failed:', err)
+      setCoverPreview(coverImageUrl || '')
+    } finally {
+      setUploadingCover(false)
+    }
+  }
+
+  function handleRemoveCover() {
+    setCoverImageUrl('')
+    setCoverPreview('')
+  }
 
   async function handleSave(e) {
     e.preventDefault()
@@ -38,6 +73,9 @@ export default function Settings() {
         brand_primary_color: primaryColor,
         brand_accent_color: accentColor,
         default_theme: defaultTheme,
+        cover_image_url: coverImageUrl || null,
+        intake_enabled: intakeEnabled,
+        intake_intro_text: intakeIntro.trim() || null,
       })
       .eq('id', project.id)
 
@@ -122,6 +160,90 @@ export default function Settings() {
               ))}
             </div>
           </div>
+
+          <div className="form-group">
+            <label>Cover afbeelding</label>
+            <p className="form-hint">Wordt getoond op de aanmeldpagina en het intake formulier.</p>
+            {coverPreview ? (
+              <div className="settings-cover-preview">
+                <img src={coverPreview} alt="Cover preview" />
+                <div className="settings-cover-preview__actions">
+                  <button type="button" className="btn-secondary btn-sm" onClick={() => coverRef.current?.click()} disabled={uploadingCover}>
+                    {uploadingCover ? 'Uploaden...' : 'Wijzigen'}
+                  </button>
+                  <button type="button" className="btn-secondary btn-sm" onClick={handleRemoveCover} style={{ color: 'var(--accent-red)' }}>
+                    Verwijderen
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" className="btn-secondary" onClick={() => coverRef.current?.click()} disabled={uploadingCover}>
+                <i className="fa-solid fa-image" /> {uploadingCover ? 'Uploaden...' : 'Cover afbeelding kiezen'}
+              </button>
+            )}
+            <input ref={coverRef} type="file" accept="image/*" onChange={handleCoverSelect} style={{ display: 'none' }} />
+          </div>
+        </section>
+
+        {/* Intake form */}
+        <section className="settings-section">
+          <h2>Intake formulier</h2>
+          <p className="form-hint" style={{ marginBottom: 16 }}>
+            Een publiek aanmeldformulier dat je kunt delen op je website of social media.
+          </p>
+
+          <label className="intake-toggle">
+            <input
+              type="checkbox"
+              checked={intakeEnabled}
+              onChange={e => setIntakeEnabled(e.target.checked)}
+            />
+            <span>Intake formulier actief</span>
+          </label>
+
+          {intakeEnabled && (
+            <>
+              <div className="intake-url-box">
+                <label>Formulier URL</label>
+                <div className="intake-url-row">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${window.location.origin}/intake/${project.id}`}
+                    className="intake-url-input"
+                  />
+                  <button
+                    type="button"
+                    className="btn-secondary btn-sm"
+                    onClick={() => navigator.clipboard.writeText(`${window.location.origin}/intake/${project.id}`)}
+                  >
+                    <i className="fa-solid fa-copy" /> Kopieer
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Introductietekst</label>
+                <textarea
+                  value={intakeIntro}
+                  onChange={e => setIntakeIntro(e.target.value)}
+                  rows={3}
+                  placeholder="Welkomstbericht dat boven het formulier verschijnt..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Vragen</label>
+                <IntakeQuestionEditor
+                  questions={questions}
+                  onAdd={addQuestion}
+                  onUpdate={updateQuestion}
+                  onDelete={deleteQuestion}
+                  onReorder={reorderQuestions}
+                />
+              </div>
+            </>
+          )}
         </section>
 
         {/* Milestones overview */}

@@ -2,9 +2,12 @@ import { useState, useRef } from 'react'
 import { uploadPostImage } from '../hooks/usePosts'
 import { POST_TAGS } from '../lib/constants'
 
-export default function PostModal({ onSave, onClose }) {
-  const [text, setText] = useState('')
-  const [tag, setTag] = useState('')
+export default function PostModal({ onSave, onClose, editPost }) {
+  const isEdit = !!editPost
+  const [text, setText] = useState(editPost?.text || '')
+  const [tag, setTag] = useState(editPost?.tag || '')
+  const [postType, setPostType] = useState(editPost?.post_type || 'post')
+  const [pollOptions, setPollOptions] = useState(['', ''])
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -23,9 +26,22 @@ export default function PostModal({ onSave, onClose }) {
     if (fileRef.current) fileRef.current.value = ''
   }
 
+  function updatePollOption(index, value) {
+    setPollOptions(prev => prev.map((o, i) => i === index ? value : o))
+  }
+
+  function addPollOption() {
+    if (pollOptions.length < 6) setPollOptions(prev => [...prev, ''])
+  }
+
+  function removePollOption(index) {
+    if (pollOptions.length > 2) setPollOptions(prev => prev.filter((_, i) => i !== index))
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     if (!text.trim()) return
+    if (postType === 'poll' && pollOptions.filter(o => o.trim()).length < 2) return
 
     setSaving(true)
     try {
@@ -33,7 +49,13 @@ export default function PostModal({ onSave, onClose }) {
       if (imageFile) {
         image_url = await uploadPostImage(imageFile)
       }
-      await onSave({ text: text.trim(), tag: tag || null, image_url })
+      await onSave({
+        text: text.trim(),
+        tag: tag || null,
+        image_url,
+        post_type: postType,
+        poll_options: postType === 'poll' ? pollOptions.filter(o => o.trim()) : null,
+      })
       onClose()
     } catch (err) {
       console.error('Error saving post:', err)
@@ -45,16 +67,36 @@ export default function PostModal({ onSave, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card" onClick={e => e.stopPropagation()}>
+      <div className="modal-card modal-card--composer" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Nieuw bericht</h2>
+          <h2>{isEdit ? 'Bericht bewerken' : 'Nieuw bericht'}</h2>
           <button className="modal-close" onClick={onClose}>
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
-          {/* Tag selection */}
+          {/* Post type toggle (not for edit) */}
+          {!isEdit && (
+            <div className="composer-type-toggle">
+              <button
+                type="button"
+                className={`composer-type-btn ${postType === 'post' ? 'composer-type-btn--active' : ''}`}
+                onClick={() => setPostType('post')}
+              >
+                <i className="fa-solid fa-pen" /> Bericht
+              </button>
+              <button
+                type="button"
+                className={`composer-type-btn ${postType === 'poll' ? 'composer-type-btn--active' : ''}`}
+                onClick={() => setPostType('poll')}
+              >
+                <i className="fa-solid fa-square-poll-vertical" /> Poll
+              </button>
+            </div>
+          )}
+
+          {/* Tag chips */}
           <div className="post-tag-select">
             {POST_TAGS.map(t => (
               <button
@@ -68,27 +110,56 @@ export default function PostModal({ onSave, onClose }) {
             ))}
           </div>
 
+          {/* Text */}
           <div className="form-group">
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
-              placeholder="Wat wil je delen met de community?"
-              rows={4}
+              placeholder={postType === 'poll' ? 'Stel je vraag aan de community...' : 'Wat wil je delen met de community?'}
+              rows={3}
               required
               autoFocus
             />
           </div>
 
-          {/* Image upload */}
-          {imagePreview ? (
+          {/* Poll options */}
+          {postType === 'poll' && (
+            <div className="composer-poll">
+              {pollOptions.map((opt, i) => (
+                <div key={i} className="composer-poll__row">
+                  <input
+                    type="text"
+                    value={opt}
+                    onChange={e => updatePollOption(i, e.target.value)}
+                    placeholder={`Optie ${i + 1}`}
+                    className="composer-poll__input"
+                  />
+                  {pollOptions.length > 2 && (
+                    <button type="button" className="composer-poll__remove" onClick={() => removePollOption(i)}>
+                      <i className="fa-solid fa-xmark" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              {pollOptions.length < 6 && (
+                <button type="button" className="btn-ghost" onClick={addPollOption}>
+                  <i className="fa-solid fa-plus" /> Optie toevoegen
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Image preview */}
+          {imagePreview && (
             <div className="post-image-preview">
               <img src={imagePreview} alt="Preview" />
               <button type="button" className="post-image-remove" onClick={removeImage}>
                 <i className="fa-solid fa-xmark" />
               </button>
             </div>
-          ) : null}
+          )}
 
+          {/* Bottom actions */}
           <div className="modal-actions modal-actions--spread">
             <button
               type="button"
@@ -108,7 +179,7 @@ export default function PostModal({ onSave, onClose }) {
             <div className="modal-actions__right">
               <button type="button" className="btn-secondary" onClick={onClose}>Annuleren</button>
               <button type="submit" className="btn-primary" disabled={saving || !text.trim()}>
-                {saving ? 'Plaatsen...' : 'Plaatsen'}
+                {saving ? (isEdit ? 'Opslaan...' : 'Plaatsen...') : (isEdit ? 'Opslaan' : 'Plaatsen')}
               </button>
             </div>
           </div>

@@ -1,6 +1,8 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
+import NotificationBell from './NotificationBell'
+import GlobalSearch from './GlobalSearch'
 import { useTheme } from '../contexts/ThemeContext'
 
 function ThemeToggle() {
@@ -32,7 +34,9 @@ export default function Layout() {
       <Sidebar />
       <main className="main-content">
         <div className="main-topbar">
+          <GlobalSearch />
           <ThemeToggle />
+          <NotificationBell />
         </div>
         <Outlet />
       </main>

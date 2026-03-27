@@ -1,50 +1,83 @@
 import { useState } from 'react'
 import { useComments } from '../hooks/usePosts'
 import { useAuth } from '../contexts/AuthContext'
-import { POST_TAG_COLORS, timeAgo } from '../lib/constants'
+import { POST_TAG_COLORS, timeAgo, REACTIONS, REACTION_MAP } from '../lib/constants'
 import Linkify from './Linkify'
 
-export default function PostDetail({ post, onClose, onLike }) {
+export default function PostDetail({ post, onClose, onLike, onReaction, onFollow, onVotePoll, onEdit, onDelete, onPin, canModerate }) {
   const { profile } = useAuth()
   const { comments, loading, addComment } = useComments(post.id)
   const [replyText, setReplyText] = useState('')
+  const [replyTo, setReplyTo] = useState(null) // { id, name }
   const [sending, setSending] = useState(false)
+  const [followToast, setFollowToast] = useState(null)
+  const [showReactions, setShowReactions] = useState(false)
+  const isPoll = post.post_type === 'poll'
+  const isAuthor = post.author_id === profile?.id
+  const canManage = isAuthor || canModerate
 
   async function handleReply(e) {
     e.preventDefault()
     if (!replyText.trim()) return
     setSending(true)
     try {
-      await addComment(replyText.trim())
+      await addComment(replyText.trim(), replyTo?.id, replyTo?.name)
       setReplyText('')
+      setReplyTo(null)
     } catch (err) {
       console.error('Error posting comment:', err)
     }
     setSending(false)
   }
 
+  function handleFollow() {
+    onFollow?.(post.id)
+    const willFollow = !post.is_followed
+    setFollowToast(willFollow ? 'Je volgt dit bericht' : 'Je volgt dit bericht niet meer')
+    setTimeout(() => setFollowToast(null), 2500)
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="post-detail-card" onClick={e => e.stopPropagation()}>
-        <button className="modal-close post-detail-close" onClick={onClose}>
-          <i className="fa-solid fa-xmark" />
-        </button>
+        <div className="modal-detail-actions">
+          {canManage && (
+            <>
+              {isAuthor && !isPoll && (
+                <button onClick={() => { onEdit?.(post); onClose() }} title="Bewerken">
+                  <i className="fa-solid fa-pen" />
+                </button>
+              )}
+              {canModerate && (
+                <button onClick={() => onPin?.(post.id)} title={post.is_pinned ? 'Losmaken' : 'Vastpinnen'}>
+                  <i className={`fa-solid fa-thumbtack${post.is_pinned ? ' feed-card__pin--active' : ''}`} />
+                </button>
+              )}
+              <button className="modal-detail-actions__danger" onClick={() => { onDelete?.(post.id); onClose() }} title="Verwijderen">
+                <i className="fa-solid fa-trash" />
+              </button>
+            </>
+          )}
+          <button onClick={onClose}>
+            <i className="fa-solid fa-xmark" />
+          </button>
+        </div>
 
         {/* Post content */}
         <div className="post-detail-content">
-          <div className="post-card__header">
-            <div className="post-card__author">
-              {post.author?.avatar_url ? (
-                <img src={post.author.avatar_url} alt="" className="post-card__avatar" />
-              ) : (
-                <div className="post-card__avatar post-card__avatar--placeholder">
-                  {(post.author?.full_name || 'U')[0]}
-                </div>
-              )}
-              <span className="post-card__author-name">{post.author?.full_name}</span>
-              <span className="post-card__time">{timeAgo(post.created_at)}</span>
+          <div className="feed-card__author">
+            {post.author?.avatar_url ? (
+              <img src={post.author.avatar_url} alt="" className="feed-card__avatar" />
+            ) : (
+              <div className="feed-card__avatar feed-card__avatar--placeholder">
+                {(post.author?.full_name || 'U')[0]}
+              </div>
+            )}
+            <div className="feed-card__author-info">
+              <span className="feed-card__name">{post.author?.full_name}</span>
+              <span className="feed-card__time">{timeAgo(post.created_at)}</span>
             </div>
-            {post.tag && <span className="post-card__tag" style={{ color: POST_TAG_COLORS[post.tag] }}>{post.tag.toUpperCase()}</span>}
+            {post.tag && <span className="feed-card__tag" style={{ color: POST_TAG_COLORS[post.tag], background: `${POST_TAG_COLORS[post.tag]}14` }}>{post.tag}</span>}
           </div>
 
           <div className="post-detail-text"><Linkify text={post.text} /></div>
@@ -55,20 +88,87 @@ export default function PostDetail({ post, onClose, onLike }) {
             </div>
           )}
 
-          <div className="post-card__footer" style={{ borderTop: 'none', paddingTop: 0 }}>
-            <button
-              className={`post-card__action ${post.is_liked ? 'post-card__action--liked' : ''}`}
-              onClick={() => onLike?.(post.id)}
-            >
-              <i className={`${post.is_liked ? 'fa-solid' : 'fa-regular'} fa-heart`} />
-              {post.like_count > 0 && <span>{post.like_count}</span>}
-            </button>
-            <span className="post-card__action">
-              <i className="fa-regular fa-comment" />
-              <span>{comments.length}</span>
-            </span>
+          {/* Inline poll */}
+          {isPoll && post.pollOptions?.length > 0 && (
+            <div className="feed-poll">
+              {post.pollOptions.map(opt => {
+                const pct = post.totalVotes > 0 ? Math.round((opt.vote_count / post.totalVotes) * 100) : 0
+                return (
+                  <button
+                    key={opt.id}
+                    className={`feed-poll__option ${opt.my_vote ? 'feed-poll__option--voted' : ''}`}
+                    onClick={() => onVotePoll?.(opt.id)}
+                  >
+                    <span className="feed-poll__bar" style={{ width: `${pct}%` }} />
+                    <span className="feed-poll__text">{opt.text}</span>
+                    <span className="feed-poll__pct">{post.hasVoted ? `${pct}%` : ''}</span>
+                  </button>
+                )
+              })}
+              <span className="feed-poll__total">{post.totalVotes} {post.totalVotes === 1 ? 'stem' : 'stemmen'}</span>
+            </div>
+          )}
+
+          {/* Actions: left = comments + follow, right = reactions */}
+          <div className="feed-card__actions">
+            <div className="feed-card__actions-left">
+              <span className="feed-card__action-btn">
+                <i className={`${comments.length > 0 ? 'fa-solid' : 'fa-regular'} fa-comment`} />
+                <span>{comments.length}</span>
+              </span>
+
+              <button
+                className={`feed-card__action-btn ${post.is_followed ? 'feed-card__action-btn--followed' : ''}`}
+                onClick={handleFollow}
+              >
+                <i className={`${post.is_followed ? 'fa-solid' : 'fa-regular'} fa-circle-check`} />
+                <span>{post.is_followed ? 'Volgend' : 'Volgen'}</span>
+              </button>
+            </div>
+
+            <div className="feed-card__actions-right">
+              {/* Reaction summary */}
+              {post.totalReactions > 0 && (
+                <div className="feed-card__reaction-summary">
+                  {Object.entries(post.reactions || {}).filter(([, c]) => c > 0).map(([emoji]) => {
+                    const r = REACTION_MAP[emoji]
+                    return r ? <i key={emoji} className={`${r.icon} feed-card__reaction-icon`} style={{ color: r.color }} /> : null
+                  })}
+                  <span className="feed-card__reaction-count">{post.totalReactions}</span>
+                </div>
+              )}
+
+              {/* Reaction picker */}
+              <div className="feed-reaction-picker-wrap">
+                <button className="feed-card__action-btn" onClick={() => setShowReactions(!showReactions)} title="Reageer">
+                  <i className="fa-regular fa-face-smile" />
+                </button>
+                {showReactions && (
+                  <div className="feed-reaction-picker">
+                    {REACTIONS.map(r => (
+                      <button
+                        key={r.key}
+                        className={`feed-reaction-picker__btn ${post.myReactions?.has(r.key) ? 'feed-reaction-picker__btn--active' : ''}`}
+                        onClick={() => { onReaction?.(post.id, r.key); setShowReactions(false) }}
+                        title={r.label}
+                      >
+                        <i className={r.icon} style={{ color: r.color }} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Follow toast */}
+        {followToast && (
+          <div className="post-detail-toast">
+            <i className={`fa-solid ${followToast.includes('niet') ? 'fa-circle-xmark' : 'fa-circle-check'}`} />
+            {followToast}
+          </div>
+        )}
 
         {/* Comments */}
         <div className="post-detail-comments">
@@ -82,6 +182,12 @@ export default function PostDetail({ post, onClose, onLike }) {
             <div className="comments-list">
               {comments.map(c => (
                 <div key={c.id} className="comment-item">
+                  {/* Reply-to indicator */}
+                  {c.reply_to_name && (
+                    <div className="comment-reply-to">
+                      <i className="fa-solid fa-reply" /> {c.reply_to_name}
+                    </div>
+                  )}
                   <div className="comment-header">
                     {c.author?.avatar_url ? (
                       <img src={c.author.avatar_url} alt="" className="comment-avatar" />
@@ -93,6 +199,13 @@ export default function PostDetail({ post, onClose, onLike }) {
                     <span className="comment-author">{c.author?.full_name}</span>
                     {c.author?.id === profile?.id && <span className="comment-you">jij</span>}
                     <span className="comment-time">{timeAgo(c.created_at)}</span>
+                    <button
+                      className="comment-reply-btn"
+                      onClick={() => setReplyTo({ id: c.id, name: c.author?.full_name })}
+                      title="Reageer"
+                    >
+                      <i className="fa-solid fa-reply" />
+                    </button>
                   </div>
                   <p className="comment-text"><Linkify text={c.text} /></p>
                 </div>
@@ -102,6 +215,14 @@ export default function PostDetail({ post, onClose, onLike }) {
 
           {/* Reply form */}
           <form className="reply-form" onSubmit={handleReply}>
+            {replyTo && (
+              <div className="reply-form__replying-to">
+                <i className="fa-solid fa-reply" /> Reageert op {replyTo.name}
+                <button type="button" onClick={() => setReplyTo(null)} className="reply-form__cancel-reply">
+                  <i className="fa-solid fa-xmark" />
+                </button>
+              </div>
+            )}
             <div className="reply-input-row">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="comment-avatar" />
@@ -114,7 +235,7 @@ export default function PostDetail({ post, onClose, onLike }) {
                 type="text"
                 value={replyText}
                 onChange={e => setReplyText(e.target.value)}
-                placeholder="Schrijf een reactie..."
+                placeholder={replyTo ? `Reageer op ${replyTo.name}...` : 'Schrijf een reactie...'}
                 disabled={sending}
               />
               <button type="submit" className="reply-submit" disabled={sending || !replyText.trim()}>
