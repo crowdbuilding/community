@@ -12,7 +12,7 @@ export default function UpdateCard({ update, onEdit, onReaction, onClick }) {
     <article className="update-card" onClick={onClick} style={{ cursor: 'pointer' }}>
       {update.image_url && (
         <div className="update-card__image">
-          <img src={update.image_url} alt="" />
+          <img src={update.image_url} alt={update.title || ''} />
         </div>
       )}
       <div className="update-card__body">

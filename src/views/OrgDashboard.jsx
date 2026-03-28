@@ -117,14 +117,14 @@ export default function OrgDashboard() {
       {/* Topbar */}
       <header className="org-topbar">
         <div className="org-topbar__left">
-          {org?.logo_url && <img src={org.logo_url} alt="" className="org-topbar__logo" />}
+          {org?.logo_url && <img src={org.logo_url} alt={org.name ? org.name + ' logo' : ''} className="org-topbar__logo" />}
           <h1 className="org-topbar__name">{org?.name || 'Organisatie'}</h1>
         </div>
         <div className="org-topbar__right">
           <ThemeToggle mode={mode} setMode={setMode} />
           {isOrgAdmin && (
             <>
-              <button className="btn-secondary" onClick={() => navigate(`/org/${orgId}/settings`)}>
+              <button className="btn-secondary" onClick={() => navigate(`/org/${orgId}/settings`)} aria-label="Instellingen">
                 <i className="fa-solid fa-gear" />
               </button>
               <button className="btn-primary" onClick={() => setCreatingNew(true)}>

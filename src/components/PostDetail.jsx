@@ -84,7 +84,7 @@ export default function PostDetail({ post, onClose, onLike, onReaction, onFollow
 
           {post.image_url && (
             <div className="post-detail-image">
-              <img src={post.image_url} alt="" />
+              <img src={post.image_url} alt="Bijlage bij bericht" />
             </div>
           )}
 

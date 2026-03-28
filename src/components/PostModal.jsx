@@ -166,6 +166,7 @@ export default function PostModal({ onSave, onClose, editPost }) {
               className="btn-icon"
               onClick={() => fileRef.current?.click()}
               title="Afbeelding toevoegen"
+              aria-label="Afbeelding toevoegen"
             >
               <i className="fa-solid fa-image" />
             </button>

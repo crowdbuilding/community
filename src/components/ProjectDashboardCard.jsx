@@ -18,7 +18,7 @@ export default function ProjectDashboardCard({ project, onSaved }) {
         <div className="org-project-card__top">
           <div className="org-project-card__header">
             {project.project_logo_url ? (
-              <img src={project.project_logo_url} alt="" className="org-project-card__logo" />
+              <img src={project.project_logo_url} alt={project.project_name ? project.project_name + ' logo' : ''} className="org-project-card__logo" />
             ) : (
               <div className="org-project-card__logo org-project-card__logo--placeholder">
                 {(project.project_name || 'P')[0]}

@@ -83,8 +83,8 @@ function RoadmapItem({ item, canEdit, onUpdate, onRemove, onToggleDone }) {
       </div>
       {canEdit && (
         <div className="roadmap-item__admin" onClick={e => e.stopPropagation()}>
-          <button className="btn-icon btn-sm" onClick={startEdit} title="Bewerken"><i className="fa-solid fa-pen" /></button>
-          <button className="btn-icon btn-sm" onClick={() => onRemove(item.id)} title="Verwijderen"><i className="fa-solid fa-trash" /></button>
+          <button className="btn-icon btn-sm" onClick={startEdit} title="Bewerken" aria-label="Bewerken"><i className="fa-solid fa-pen" /></button>
+          <button className="btn-icon btn-sm" onClick={() => onRemove(item.id)} title="Verwijderen" aria-label="Verwijderen"><i className="fa-solid fa-trash" /></button>
         </div>
       )}
       <i className={`fa-solid fa-chevron-down roadmap-item__chevron ${open ? 'roadmap-item__chevron--open' : ''}`} />

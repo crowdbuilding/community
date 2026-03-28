@@ -190,7 +190,7 @@ function QuestionRow({ question, index, total, onUpdate, onDelete, onMoveUp, onM
       </div>
 
       <div className="intake-editor__row-actions">
-        <button className="intake-editor__action-btn" onClick={() => setEditing(!editing)} title="Bewerken">
+        <button className="intake-editor__action-btn" onClick={() => setEditing(!editing)} title="Bewerken" aria-label="Bewerken">
           <i className="fa-solid fa-pen" />
         </button>
         <button
@@ -200,7 +200,7 @@ function QuestionRow({ question, index, total, onUpdate, onDelete, onMoveUp, onM
         >
           <i className={`fa-solid ${question.active ? 'fa-eye' : 'fa-eye-slash'}`} />
         </button>
-        <button className="intake-editor__action-btn intake-editor__action-btn--danger" onClick={() => onDelete(question.id)} title="Verwijderen">
+        <button className="intake-editor__action-btn intake-editor__action-btn--danger" onClick={() => onDelete(question.id)} title="Verwijderen" aria-label="Verwijderen">
           <i className="fa-solid fa-trash" />
         </button>
       </div>

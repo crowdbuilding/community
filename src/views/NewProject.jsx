@@ -101,7 +101,7 @@ export default function NewProject() {
             <h3 className="profile-section__title">Logo</h3>
             <div className="profile-logo-row">
               {logoPreview ? (
-                <img src={logoPreview} alt="" className="profile-logo" />
+                <img src={logoPreview} alt="Project logo" className="profile-logo" />
               ) : (
                 <div className="profile-logo profile-logo--placeholder">
                   <i className="fa-solid fa-image" />

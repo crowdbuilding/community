@@ -117,7 +117,7 @@ function UploadModal({ onSave, onClose }) {
       <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Document toevoegen</h2>
-          <button className="modal-close" onClick={onClose}><i className="fa-solid fa-xmark" /></button>
+          <button className="modal-close" onClick={onClose} aria-label="Sluiten"><i className="fa-solid fa-xmark" /></button>
         </div>
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
@@ -145,7 +145,7 @@ function UploadModal({ onSave, onClose }) {
                 <i className={fileIcon(file.type)} style={{ color: fileIconColor(file.type) }} />
                 <span>{file.name}</span>
                 <span className="file-selected__size">{formatFileSize(file.size)}</span>
-                <button type="button" onClick={() => { setFile(null); if (fileRef.current) fileRef.current.value = '' }}>
+                <button type="button" onClick={() => { setFile(null); if (fileRef.current) fileRef.current.value = '' }} aria-label="Verwijderen">
                   <i className="fa-solid fa-xmark" />
                 </button>
               </div>

@@ -77,7 +77,7 @@ export default function NewProjectCard({ orgId, onCreated, onCancel }) {
             </div>
           </div>
           <div className="org-project-card__actions">
-            <button className="org-project-card__action-btn" onClick={onCancel} title="Annuleren">
+            <button className="org-project-card__action-btn" onClick={onCancel} title="Annuleren" aria-label="Sluiten">
               <i className="fa-solid fa-xmark" />
             </button>
           </div>

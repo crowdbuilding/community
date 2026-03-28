@@ -123,14 +123,14 @@ export default function JoinProject() {
         <div className="join-card">
           {project.cover_image_url ? (
             <div className="join-card__cover">
-              <img src={project.cover_image_url} alt="" />
+              <img src={project.cover_image_url} alt={project.name + ' cover'} />
             </div>
           ) : (
             <div className="join-card__header" />
           )}
           <div className="join-card__content">
             {project.logo_url ? (
-              <img src={project.logo_url} alt="" className="join-card__logo" />
+              <img src={project.logo_url} alt={project.name + ' logo'} className="join-card__logo" />
             ) : (
               <div className="join-card__logo join-card__logo--placeholder">
                 {(project.name || 'P')[0]}

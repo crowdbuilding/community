@@ -390,7 +390,7 @@ function ActionItem({ item, canEdit, onToggle, onRemove }) {
   const confirm = useConfirm()
   return (
     <div className={`action-item ${item.is_done ? 'action-item--done' : ''}`}>
-      <button className="action-item__check" onClick={() => onToggle(item.id, !item.is_done)}>
+      <button className="action-item__check" onClick={() => onToggle(item.id, !item.is_done)} aria-label={item.is_done ? 'Markeer als open' : 'Markeer als afgerond'}>
         <i className={`fa-${item.is_done ? 'solid' : 'regular'} fa-circle-check`} />
       </button>
       <div className="action-item__content">

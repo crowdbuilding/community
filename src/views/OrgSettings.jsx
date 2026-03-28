@@ -136,7 +136,7 @@ export default function OrgSettings() {
             <h3 className="profile-section__title">Organisatie</h3>
             <div className="profile-logo-row">
               {logoPreview ? (
-                <img src={logoPreview} alt="" className="profile-logo" />
+                <img src={logoPreview} alt="Organisatie logo" className="profile-logo" />
               ) : (
                 <div className="profile-logo profile-logo--placeholder">
                   <i className="fa-solid fa-building" />
@@ -159,7 +159,7 @@ export default function OrgSettings() {
               {admins.map(a => (
                 <div key={a.id} className="org-admin-row">
                   {a.profile?.avatar_url ? (
-                    <img src={a.profile.avatar_url} alt="" className="org-admin-row__avatar" />
+                    <img src={a.profile.avatar_url} alt={a.profile.full_name || ''} className="org-admin-row__avatar" />
                   ) : (
                     <div className="org-admin-row__avatar org-admin-row__avatar--placeholder">
                       {(a.profile?.full_name || 'A')[0]}

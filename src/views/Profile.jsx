@@ -232,7 +232,7 @@ export default function Profile() {
               {photoUrls.map((url, i) => (
                 <div key={i} className="profile-edit__gallery-item">
                   <img src={url} alt="" />
-                  <button type="button" className="profile-edit__gallery-remove" onClick={() => removeGalleryPhoto(i)}>
+                  <button type="button" className="profile-edit__gallery-remove" onClick={() => removeGalleryPhoto(i)} aria-label="Verwijderen">
                     <i className="fa-solid fa-xmark" />
                   </button>
                 </div>
@@ -284,7 +284,7 @@ export default function Profile() {
                   <i className="fa-solid fa-upload" /> Logo uploaden
                 </button>
                 {companyLogoUrl && (
-                  <button type="button" className="btn-icon-sm" onClick={() => { setCompanyLogoUrl(null); setCompanyLogoPreview(null) }}>
+                  <button type="button" className="btn-icon-sm" onClick={() => { setCompanyLogoUrl(null); setCompanyLogoPreview(null) }} aria-label="Verwijderen">
                     <i className="fa-solid fa-xmark" />
                   </button>
                 )}

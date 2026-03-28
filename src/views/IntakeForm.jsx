@@ -112,7 +112,7 @@ export default function IntakeForm() {
         <div className="join-card">
           <div className="join-card__content" style={{ paddingTop: 32 }}>
             {project.logo_url && (
-              <img src={project.logo_url} alt="" className="join-card__logo" style={{ marginTop: 0 }} />
+              <img src={project.logo_url} alt={project.name + ' logo'} className="join-card__logo" style={{ marginTop: 0 }} />
             )}
             <div className="intake-success-icon" style={{ color: brandColor }}>
               <i className="fa-solid fa-circle-check" />
@@ -133,14 +133,14 @@ export default function IntakeForm() {
       <div className="join-card join-card--wide">
         {project.cover_image_url && (
           <div className="intake-hero">
-            <img src={project.cover_image_url} alt="" />
+            <img src={project.cover_image_url} alt={project.name + ' cover'} />
           </div>
         )}
         <div className="join-card__content">
           {project.logo_url && (
             <img
               src={project.logo_url}
-              alt=""
+              alt={project.name + ' logo'}
               className="join-card__logo"
               style={project.cover_image_url ? { marginTop: -78, position: 'relative', zIndex: 2 } : { marginTop: 20 }}
             />

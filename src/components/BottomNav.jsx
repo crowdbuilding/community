@@ -23,7 +23,7 @@ export default function BottomNav() {
   }
 
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" role="navigation" aria-label="Mobiele navigatie">
       {TABS.map(tab => {
         if (tab.action && !canDo(role, tab.action)) return null
         return (

@@ -199,10 +199,10 @@ export default function ProfessionalUpdateModal({ update, activePhase, onSave, o
 
           <div className="modal-actions modal-actions--spread">
             <div className="modal-actions__left">
-              <button type="button" className="btn-icon" onClick={() => imageRef.current?.click()} title="Afbeelding">
+              <button type="button" className="btn-icon" onClick={() => imageRef.current?.click()} title="Afbeelding" aria-label="Afbeelding toevoegen">
                 <i className="fa-solid fa-image" />
               </button>
-              <button type="button" className="btn-icon" onClick={() => fileRef.current?.click()} title="Bestanden">
+              <button type="button" className="btn-icon" onClick={() => fileRef.current?.click()} title="Bestanden" aria-label="Bestanden toevoegen">
                 <i className="fa-solid fa-paperclip" />
               </button>
             </div>
