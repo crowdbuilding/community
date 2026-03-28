@@ -399,7 +399,8 @@
 [data-theme="contrast"] .doc-row,
 [data-theme="contrast"] .member-card,
 [data-theme="contrast"] .member-row,
-[data-theme="contrast"] .adviseur-card {
+[data-theme="contrast"] .adviseur-card,
+[data-theme="contrast"] .feed-composer-prompt {
   border: 1px solid #000000;
   box-shadow: none;
 }
