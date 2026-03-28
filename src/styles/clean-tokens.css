@@ -443,6 +443,15 @@
   border-color: #900000;
 }
 
+/* Count badges: red */
+[data-theme="contrast"] .events-tab__count,
+[data-theme="contrast"] .tag-filter__count,
+[data-theme="contrast"] .doc-tab__count,
+[data-theme="contrast"] .doc-tab--active .doc-tab__count {
+  background: var(--accent-cta);
+  color: #FFFFFF;
+}
+
 /* Tags: subtle border, keep original shape */
 [data-theme="contrast"] .cl-tag,
 [data-theme="contrast"] .tag,

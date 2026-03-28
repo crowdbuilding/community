@@ -15,6 +15,14 @@ export function ThemeProvider({ children, projectBranding }) {
   }, [mode])
 
   useEffect(() => {
+    // In contrast mode, don't apply project branding — use theme's own colors
+    if (mode === 'contrast') {
+      document.documentElement.style.removeProperty('--accent-primary')
+      document.documentElement.style.removeProperty('--border-focus')
+      document.documentElement.style.removeProperty('--accent-green')
+      return
+    }
+
     // Apply project branding colors as CSS custom properties
     if (projectBranding?.brand_primary_color) {
       document.documentElement.style.setProperty('--accent-primary', projectBranding.brand_primary_color)
@@ -30,7 +38,7 @@ export function ThemeProvider({ children, projectBranding }) {
       document.documentElement.style.removeProperty('--border-focus')
       document.documentElement.style.removeProperty('--accent-green')
     }
-  }, [projectBranding])
+  }, [projectBranding, mode])
 
   return (
     <ThemeContext.Provider value={{ mode, setMode }}>
