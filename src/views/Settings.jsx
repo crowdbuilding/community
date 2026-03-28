@@ -147,15 +147,20 @@ export default function Settings() {
           <div className="form-group">
             <label>Standaard thema</label>
             <div className="theme-select">
-              {['light', 'warm', 'dark'].map(t => (
+              {[
+                { value: 'light', icon: 'fa-sun', label: 'Licht' },
+                { value: 'warm', icon: 'fa-cloud-sun', label: 'Warm' },
+                { value: 'dark', icon: 'fa-moon', label: 'Donker' },
+                { value: 'contrast', icon: 'fa-eye', label: 'Hoog contrast' },
+              ].map(t => (
                 <button
-                  key={t}
+                  key={t.value}
                   type="button"
-                  className={`theme-select__btn ${defaultTheme === t ? 'theme-select__btn--active' : ''}`}
-                  onClick={() => setDefaultTheme(t)}
+                  className={`theme-select__btn ${defaultTheme === t.value ? 'theme-select__btn--active' : ''}`}
+                  onClick={() => setDefaultTheme(t.value)}
                 >
-                  <i className={`fa-solid ${t === 'light' ? 'fa-sun' : t === 'warm' ? 'fa-cloud-sun' : 'fa-moon'}`} />
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                  <i className={`fa-solid ${t.icon}`} />
+                  {t.label}
                 </button>
               ))}
             </div>
