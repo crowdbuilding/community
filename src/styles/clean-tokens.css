@@ -382,23 +382,31 @@
   min-width: 44px;
 }
 
-/* Flat design: ALL cards get solid borders, no shadows */
+/* Flat design: ALL cards get solid 1px outline, no shadows */
 [data-theme="contrast"] .cl-card,
 [data-theme="contrast"] .cl-card--elevated,
 [data-theme="contrast"] .dash-card,
+[data-theme="contrast"] .dash-stat,
+[data-theme="contrast"] .cl-stat-card,
 [data-theme="contrast"] .feed-card,
 [data-theme="contrast"] .project-card,
 [data-theme="contrast"] .modal-card,
 [data-theme="contrast"] .post-detail-card,
-[data-theme="contrast"] .cl-stat-card,
-[data-theme="contrast"] .dash-stat {
-  border: 2px solid #000000;
+[data-theme="contrast"] .update-card,
+[data-theme="contrast"] .pro-update-card,
+[data-theme="contrast"] .event-card,
+[data-theme="contrast"] .roadmap-phase,
+[data-theme="contrast"] .roadmap-item,
+[data-theme="contrast"] .doc-row,
+[data-theme="contrast"] .member-card,
+[data-theme="contrast"] .member-row {
+  border: 1px solid #000000;
   box-shadow: none;
 }
 
 /* Flat buttons: solid border, no shadow */
 [data-theme="contrast"] .cl-btn {
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   box-shadow: none;
 }
 
@@ -416,7 +424,7 @@
 [data-theme="contrast"] input,
 [data-theme="contrast"] textarea,
 [data-theme="contrast"] select {
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   box-shadow: none;
 }
 
@@ -443,7 +451,7 @@
 [data-theme="contrast"] .sidebar-user-menu,
 [data-theme="contrast"] .cl-modal,
 [data-theme="contrast"] .cl-dropdown {
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   box-shadow: none;
 }
 
