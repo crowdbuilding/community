@@ -341,15 +341,12 @@
   --tag-orange-bg:       rgba(160, 80, 0, 0.15);
   --tag-orange-text:     #703800;
 
-  --shadow-xs:           0 1px 2px rgba(0, 0, 0, 0.12);
-  --shadow-sm:           0 1px 3px rgba(0, 0, 0, 0.16),
-                         0 1px 2px rgba(0, 0, 0, 0.10);
-  --shadow-md:           0 4px 12px rgba(0, 0, 0, 0.20),
-                         0 1px 3px rgba(0, 0, 0, 0.12);
-  --shadow-lg:           0 12px 40px rgba(0, 0, 0, 0.25),
-                         0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-xl:           0 20px 60px rgba(0, 0, 0, 0.30),
-                         0 8px 20px rgba(0, 0, 0, 0.18);
+  /* Flat design: no soft shadows, use borders instead */
+  --shadow-xs:           none;
+  --shadow-sm:           none;
+  --shadow-md:           none;
+  --shadow-lg:           none;
+  --shadow-xl:           none;
 
   /* Larger base sizing */
   --font-size-base:      19px;
@@ -385,18 +382,43 @@
   min-width: 44px;
 }
 
-/* Visible card borders instead of subtle shadows */
+/* Flat design: cards get solid borders, no shadows */
 [data-theme="contrast"] .cl-card,
 [data-theme="contrast"] .cl-card--elevated {
-  border: 2px solid #444444;
+  border: 2px solid #000000;
+  box-shadow: none;
+}
+
+/* Flat buttons: solid border, no shadow */
+[data-theme="contrast"] .cl-btn {
+  border: 2px solid #000000;
+  box-shadow: none;
+}
+
+[data-theme="contrast"] .cl-btn--primary {
+  border-color: var(--accent-primary);
+}
+
+/* Tags: match flat style with solid border */
+[data-theme="contrast"] .cl-tag,
+[data-theme="contrast"] .tag {
+  border: 1.5px solid currentColor;
 }
 
 /* Stronger input borders */
 [data-theme="contrast"] input,
 [data-theme="contrast"] textarea,
 [data-theme="contrast"] select {
-  border-width: 2px;
-  border-color: #444444;
+  border: 2px solid #000000;
+  box-shadow: none;
+}
+
+/* Flat hover: no translateY/shadow lift, just background change */
+[data-theme="contrast"] .cl-card:hover,
+[data-theme="contrast"] .cl-card--elevated:hover {
+  transform: none;
+  box-shadow: none;
+  background: #F5F5F5;
 }
 
 /* Larger icon buttons */
@@ -405,6 +427,14 @@
   min-width: 44px;
   min-height: 44px;
   font-size: 18px;
+}
+
+/* Flat popups/dropdowns/modals */
+[data-theme="contrast"] .sidebar-user-menu,
+[data-theme="contrast"] .cl-modal,
+[data-theme="contrast"] .cl-dropdown {
+  border: 2px solid #000000;
+  box-shadow: none;
 }
 
 /* Sidebar: subtle background instead of borders */
