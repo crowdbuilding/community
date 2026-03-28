@@ -396,11 +396,17 @@
 [data-theme="contrast"] .pro-update-card,
 [data-theme="contrast"] .event-card,
 [data-theme="contrast"] .roadmap-phase,
-[data-theme="contrast"] .roadmap-item,
 [data-theme="contrast"] .doc-row,
 [data-theme="contrast"] .member-card,
-[data-theme="contrast"] .member-row {
+[data-theme="contrast"] .member-row,
+[data-theme="contrast"] .adviseur-card {
   border: 1px solid #000000;
+  box-shadow: none;
+}
+
+/* Roadmap items inside a phase: no extra outline */
+[data-theme="contrast"] .roadmap-phase .roadmap-item {
+  border: none;
   box-shadow: none;
 }
 
@@ -414,10 +420,21 @@
   border-color: var(--accent-primary);
 }
 
-/* Tags: match flat style with solid border */
+/* Tags & filters: pill shape with subtle border */
 [data-theme="contrast"] .cl-tag,
-[data-theme="contrast"] .tag {
-  border: 1.5px solid currentColor;
+[data-theme="contrast"] .tag,
+[data-theme="contrast"] .filter-tag,
+[data-theme="contrast"] .roadmap-item__tag,
+[data-theme="contrast"] .event-card__type-tag,
+[data-theme="contrast"] .event-card__vis-tag,
+[data-theme="contrast"] .event-card__spots-tag,
+[data-theme="contrast"] .doc-row__source,
+[data-theme="contrast"] .doc-row__badge,
+[data-theme="contrast"] .member-card__badge,
+[data-theme="contrast"] .update-card__visibility,
+[data-theme="contrast"] .sidebar-badge {
+  border: 1px solid currentColor;
+  border-radius: 999px;
 }
 
 /* Stronger input borders */
