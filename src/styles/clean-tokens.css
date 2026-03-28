@@ -382,9 +382,16 @@
   min-width: 44px;
 }
 
-/* Flat design: cards get solid borders, no shadows */
+/* Flat design: ALL cards get solid borders, no shadows */
 [data-theme="contrast"] .cl-card,
-[data-theme="contrast"] .cl-card--elevated {
+[data-theme="contrast"] .cl-card--elevated,
+[data-theme="contrast"] .dash-card,
+[data-theme="contrast"] .feed-card,
+[data-theme="contrast"] .project-card,
+[data-theme="contrast"] .modal-card,
+[data-theme="contrast"] .post-detail-card,
+[data-theme="contrast"] .cl-stat-card,
+[data-theme="contrast"] .dash-stat {
   border: 2px solid #000000;
   box-shadow: none;
 }
@@ -415,7 +422,10 @@
 
 /* Flat hover: no translateY/shadow lift, just background change */
 [data-theme="contrast"] .cl-card:hover,
-[data-theme="contrast"] .cl-card--elevated:hover {
+[data-theme="contrast"] .cl-card--elevated:hover,
+[data-theme="contrast"] .dash-card:hover,
+[data-theme="contrast"] .feed-card:hover,
+[data-theme="contrast"] .project-card:hover {
   transform: none;
   box-shadow: none;
   background: #F5F5F5;
