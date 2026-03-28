@@ -483,6 +483,11 @@
   border-color: #000000;
 }
 
+/* Remove divider above comments in post detail */
+[data-theme="contrast"] .post-detail-comments {
+  border-top: none;
+}
+
 /* Active phase dot: red fill */
 [data-theme="contrast"] .dash-stepper__dot--active {
   background: var(--accent-cta);
