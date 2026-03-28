@@ -319,7 +319,7 @@
   --border-subtle:       #888888;
 
   --accent-primary:      #000000;
-  --accent-cta:          #C00000;
+  --accent-cta:          #E74C3C;
   --accent-yellow:       #856400;
   --accent-red:          #C00000;
   --accent-green:        #007A2B;
@@ -439,8 +439,8 @@
 [data-theme="contrast"] .btn-primary:hover,
 [data-theme="contrast"] .cl-btn--primary:hover {
   opacity: 1;
-  background: #900000;
-  border-color: #900000;
+  background: #C0392B;
+  border-color: #C0392B;
 }
 
 /* Count badges: red */
@@ -467,10 +467,12 @@
   border: 1px solid currentColor;
 }
 
-/* Filter buttons: pure pill shape */
+/* Filter buttons: pill shape with thicker stroke */
 [data-theme="contrast"] .tag-filter__pill,
 [data-theme="contrast"] .filter-tag {
   border-radius: 999px;
+  border-width: 2px;
+  border-color: #000000;
 }
 
 /* Stronger input borders */
