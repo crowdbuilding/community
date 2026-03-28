@@ -405,9 +405,10 @@
   box-shadow: none;
 }
 
-/* Roadmap items inside a phase: no extra outline */
+/* Roadmap items inside a phase: only top divider, no full outline */
 [data-theme="contrast"] .roadmap-phase .roadmap-item {
   border: none;
+  border-top: 1px solid #000000;
   box-shadow: none;
 }
 
