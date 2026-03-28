@@ -407,6 +407,20 @@
   font-size: 18px;
 }
 
+/* Sidebar: subtle background instead of borders */
+[data-theme="contrast"] .cl-sidebar {
+  background: #F0F0F0;
+  border-right: none;
+}
+
+[data-theme="contrast"] .sidebar-project-header {
+  border-bottom: none;
+}
+
+[data-theme="contrast"] .sidebar-footer {
+  border-top: none;
+}
+
 /* ============================================================================
    FONT AWESOME — Self-Hosted @font-face
    
