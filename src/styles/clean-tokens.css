@@ -319,6 +319,7 @@
   --border-subtle:       #888888;
 
   --accent-primary:      #000000;
+  --accent-cta:          #C00000;
   --accent-yellow:       #856400;
   --accent-red:          #C00000;
   --accent-green:        #007A2B;
@@ -427,8 +428,19 @@
   box-shadow: none;
 }
 
+/* CTA buttons: red */
+[data-theme="contrast"] .btn-primary,
 [data-theme="contrast"] .cl-btn--primary {
-  border-color: var(--accent-primary);
+  background: var(--accent-cta);
+  border-color: var(--accent-cta);
+  color: #FFFFFF;
+}
+
+[data-theme="contrast"] .btn-primary:hover,
+[data-theme="contrast"] .cl-btn--primary:hover {
+  opacity: 1;
+  background: #900000;
+  border-color: #900000;
 }
 
 /* Tags: subtle border, keep original shape */
