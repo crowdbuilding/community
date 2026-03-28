@@ -488,11 +488,8 @@
 [data-theme="contrast"] .tag,
 [data-theme="contrast"] .roadmap-item__tag,
 [data-theme="contrast"] .event-card__type-tag,
-[data-theme="contrast"] .event-card__spots-tag,
 [data-theme="contrast"] .doc-row__source,
 [data-theme="contrast"] .doc-row__badge,
-[data-theme="contrast"] .member-card__badge,
-[data-theme="contrast"] .update-card__visibility,
 [data-theme="contrast"] .sidebar-badge {
   border: 1px solid currentColor;
 }
