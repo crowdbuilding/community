@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger, friendlyError } from '../lib/logger'
+import { logAudit } from '../lib/audit'
 import { useProject } from '../contexts/ProjectContext'
 
 async function sendMemberEmail(type, { memberName, memberEmail, projectName, reason }) {
