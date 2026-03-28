@@ -28,6 +28,7 @@ import JoinProject from './views/JoinProject'
 import IntakeForm from './views/IntakeForm'
 import Ledenwerving from './views/Ledenwerving'
 import PrivacyPolicy from './views/PrivacyPolicy'
+import CookieConsent from './components/CookieConsent'
 
 function NotFound() {
   return (
@@ -142,6 +143,7 @@ export default function App() {
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
+    <CookieConsent />
     </ErrorBoundary>
   )
 }

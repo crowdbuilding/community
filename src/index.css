@@ -7808,3 +7808,45 @@ select.input {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Cookie consent banner */
+.cookie-consent {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 16px;
+  background: var(--bg-surface, #fff);
+  border-top: 1px solid var(--border-default);
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  animation: toast-in 300ms ease-out;
+}
+.cookie-consent__content {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cookie-consent__content p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+.cookie-consent__content a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+}
+.cookie-consent__btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .cookie-consent__content {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
