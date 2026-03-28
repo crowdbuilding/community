@@ -7868,3 +7868,36 @@ select.input {
     gap: 12px;
   }
 }
+
+/* Session timeout warning */
+.session-timeout-warning {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--bg-surface, #fff);
+  border-left: 3px solid var(--accent-orange, #F39C12);
+  border-radius: var(--radius-md, 10px);
+  box-shadow: var(--shadow-lg);
+  font-size: 14px;
+  font-weight: 500;
+  animation: toast-in 200ms ease-out;
+}
+.session-timeout-warning i {
+  color: var(--accent-orange, #F39C12);
+}
+.session-timeout-warning button {
+  padding: 4px 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm, 6px);
+  background: var(--bg-surface);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  cursor: pointer;
+}
