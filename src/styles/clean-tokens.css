@@ -455,7 +455,7 @@
 
 /* Events/docs toggle tabs: outlined pill style */
 [data-theme="contrast"] .events-tab {
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   border-radius: 999px;
 }
 
@@ -472,7 +472,7 @@
 }
 
 [data-theme="contrast"] .doc-tab {
-  border: 2px solid #000000;
+  border: 1px solid #000000;
   border-radius: 999px;
   padding: 6px 14px;
 }
@@ -501,7 +501,7 @@
 [data-theme="contrast"] .tag-filter__pill,
 [data-theme="contrast"] .filter-tag {
   border-radius: 999px;
-  border-width: 2px;
+  border-width: 1px;
   border-color: #000000;
 }
 
