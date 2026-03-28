@@ -29,6 +29,7 @@ import IntakeForm from './views/IntakeForm'
 import Ledenwerving from './views/Ledenwerving'
 import PrivacyPolicy from './views/PrivacyPolicy'
 import CookieConsent from './components/CookieConsent'
+import PublicProject from './views/PublicProject'
 
 function NotFound() {
   return (
@@ -110,6 +111,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/project/:slug" element={<PublicProject />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/intake/:projectId" element={<IntakeForm />} />
 

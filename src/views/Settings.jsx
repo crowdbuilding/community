@@ -20,6 +20,10 @@ export default function Settings() {
   const coverRef = useRef(null)
   const [intakeEnabled, setIntakeEnabled] = useState(false)
   const [intakeIntro, setIntakeIntro] = useState('')
+  const [isPublic, setIsPublic] = useState(false)
+  const [slug, setSlug] = useState('')
+  const [publicDescription, setPublicDescription] = useState('')
+  const [publicContactEmail, setPublicContactEmail] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const { questions, addQuestion, updateQuestion, deleteQuestion, reorderQuestions } = useIntakeQuestions(project?.id)
@@ -37,6 +41,10 @@ export default function Settings() {
       setCoverPreview(project.cover_image_url || '')
       setIntakeEnabled(project.intake_enabled || false)
       setIntakeIntro(project.intake_intro_text || '')
+      setIsPublic(project.is_public || false)
+      setSlug(project.slug || '')
+      setPublicDescription(project.public_description || '')
+      setPublicContactEmail(project.public_contact_email || '')
     }
   }, [project])
 
@@ -76,6 +84,10 @@ export default function Settings() {
         cover_image_url: coverImageUrl || null,
         intake_enabled: intakeEnabled,
         intake_intro_text: intakeIntro.trim() || null,
+        is_public: isPublic,
+        slug: slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') || null,
+        public_description: publicDescription.trim() || null,
+        public_contact_email: publicContactEmail.trim() || null,
       })
       .eq('id', project.id)
 
@@ -188,6 +200,67 @@ export default function Settings() {
             )}
             <input ref={coverRef} type="file" accept="image/*" onChange={handleCoverSelect} style={{ display: 'none' }} />
           </div>
+        </section>
+
+        {/* Public project page */}
+        <section className="settings-section">
+          <h2><i className="fa-solid fa-globe" /> Publieke projectpagina</h2>
+          <p className="form-hint" style={{ marginBottom: 16 }}>
+            Een openbare pagina voor omwonenden en geïnteresseerden. Toont projectinfo, tijdlijn, publieke updates en events.
+          </p>
+
+          <div className="toggle-row" style={{ marginBottom: 16 }}>
+            <label className="toggle">
+              <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} />
+              <span className="toggle__slider" />
+            </label>
+            <span>Publieke pagina actief</span>
+          </div>
+
+          {isPublic && (
+            <>
+              <div className="form-group">
+                <label htmlFor="set-slug">URL-slug</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 14, color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>/project/</span>
+                  <input
+                    id="set-slug"
+                    type="text"
+                    value={slug}
+                    onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                    placeholder="vlinderhaven"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="set-pub-desc">Publieke beschrijving</label>
+                <textarea
+                  id="set-pub-desc"
+                  value={publicDescription}
+                  onChange={e => setPublicDescription(e.target.value)}
+                  placeholder="Korte beschrijving voor bezoekers die het project nog niet kennen..."
+                  rows={4}
+                />
+                <span className="form-hint">Laat leeg om de standaard projectbeschrijving te gebruiken.</span>
+              </div>
+              <div className="form-group">
+                <label htmlFor="set-pub-email">Contact e-mail (publiek)</label>
+                <input
+                  id="set-pub-email"
+                  type="email"
+                  value={publicContactEmail}
+                  onChange={e => setPublicContactEmail(e.target.value)}
+                  placeholder="info@project.nl"
+                />
+              </div>
+              {slug && (
+                <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 8 }}>
+                  <i className="fa-solid fa-link" style={{ marginRight: 6 }} />
+                  Pagina zichtbaar op: <strong>{window.location.origin}/project/{slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')}</strong>
+                </p>
+              )}
+            </>
+          )}
         </section>
 
         {/* Intake form */}
