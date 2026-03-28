@@ -1164,7 +1164,7 @@ select.input {
 
 .tag-filter__pill {
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 999px;
   border: 1px solid var(--border-default);
   background: transparent;
   color: var(--text-secondary);

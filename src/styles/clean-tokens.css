@@ -427,10 +427,9 @@
   border-color: var(--accent-primary);
 }
 
-/* Tags & filters: pill shape with subtle border */
+/* Tags: subtle border, keep original shape */
 [data-theme="contrast"] .cl-tag,
 [data-theme="contrast"] .tag,
-[data-theme="contrast"] .filter-tag,
 [data-theme="contrast"] .roadmap-item__tag,
 [data-theme="contrast"] .event-card__type-tag,
 [data-theme="contrast"] .event-card__vis-tag,
@@ -441,6 +440,11 @@
 [data-theme="contrast"] .update-card__visibility,
 [data-theme="contrast"] .sidebar-badge {
   border: 1px solid currentColor;
+}
+
+/* Filter buttons: pure pill shape */
+[data-theme="contrast"] .tag-filter__pill,
+[data-theme="contrast"] .filter-tag {
   border-radius: 999px;
 }
 
