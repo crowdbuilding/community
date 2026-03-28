@@ -483,6 +483,12 @@
   border-color: #000000;
 }
 
+/* Active phase dot: red fill */
+[data-theme="contrast"] .dash-stepper__dot--active {
+  background: var(--accent-cta);
+  border-color: var(--accent-cta);
+}
+
 /* Tags: subtle border, keep original shape */
 [data-theme="contrast"] .cl-tag,
 [data-theme="contrast"] .tag,
