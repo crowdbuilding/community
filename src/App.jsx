@@ -27,6 +27,7 @@ import NewProject from './views/NewProject'
 import JoinProject from './views/JoinProject'
 import IntakeForm from './views/IntakeForm'
 import Ledenwerving from './views/Ledenwerving'
+import PrivacyPolicy from './views/PrivacyPolicy'
 
 function NotFound() {
   return (
@@ -107,6 +108,7 @@ export default function App() {
           <ConfirmProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/intake/:projectId" element={<IntakeForm />} />
 
