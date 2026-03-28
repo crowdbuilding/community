@@ -108,6 +108,11 @@ export default function Login() {
             <i className="fa-solid fa-envelope" />
             Inloggen met e-mail
           </button>
+
+          <p style={{ marginTop: 24, fontSize: 13, color: 'var(--text-tertiary)', textAlign: 'center' }}>
+            Door in te loggen ga je akkoord met ons{' '}
+            <a href="/privacy" style={{ color: 'var(--accent-primary)' }}>privacybeleid</a>.
+          </p>
         </div>
       </div>
     )

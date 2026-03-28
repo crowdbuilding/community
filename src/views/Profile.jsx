@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { uploadImage } from '../lib/storage'
+import { logAudit } from '../lib/audit'
 import { PROFESSIONAL_LABELS, PROFESSIONAL_COLORS } from '../lib/constants'
 
 export default function Profile() {
@@ -23,6 +24,9 @@ export default function Profile() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [exporting, setExporting] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const avatarRef = useRef(null)
   const logoRef = useRef(null)
   const photoRef = useRef(null)
@@ -126,6 +130,75 @@ export default function Profile() {
 
   function removeGalleryPhoto(index) {
     setPhotoUrls(prev => prev.filter((_, i) => i !== index))
+  }
+
+  async function handleExportData() {
+    setExporting(true)
+    try {
+      const userId = authProfile.id
+      const [profileRes, membershipsRes, postsRes, commentsRes, updatesRes] = await Promise.all([
+        supabase.from('profiles').select('id, full_name, email, bio, company, phone, website, birth_year, household, housing_dream, created_at').eq('id', userId).single(),
+        supabase.from('memberships').select('role, joined_at, projects(name)').eq('profile_id', userId),
+        supabase.from('posts').select('text, tag, post_type, created_at').eq('author_id', userId).order('created_at', { ascending: false }),
+        supabase.from('comments').select('text, created_at').eq('author_id', userId).order('created_at', { ascending: false }),
+        supabase.from('updates').select('title, body, tag, is_public, created_at').eq('author_id', userId).order('created_at', { ascending: false }),
+      ])
+
+      const exportData = {
+        exported_at: new Date().toISOString(),
+        profile: profileRes.data,
+        memberships: (membershipsRes.data || []).map(m => ({
+          project: m.projects?.name,
+          role: m.role,
+          joined_at: m.joined_at,
+        })),
+        posts: postsRes.data || [],
+        comments: commentsRes.data || [],
+        updates: updatesRes.data || [],
+      }
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `mijn-gegevens-${new Date().toISOString().split('T')[0]}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      logAudit('user.data_exported', 'profile', { resourceId: userId })
+    } catch (err) {
+      console.error('Export failed:', err)
+      alert('Data exporteren mislukt. Probeer het opnieuw.')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true)
+    try {
+      const userId = authProfile.id
+      logAudit('user.account_deleted', 'profile', { resourceId: userId })
+
+      // Delete all user content
+      await Promise.all([
+        supabase.from('comments').delete().eq('author_id', userId),
+        supabase.from('posts').delete().eq('author_id', userId),
+        supabase.from('updates').delete().eq('author_id', userId),
+        supabase.from('memberships').delete().eq('profile_id', userId),
+      ])
+
+      // Delete profile
+      await supabase.from('profiles').delete().eq('id', userId)
+
+      // Sign out
+      await supabase.auth.signOut()
+      window.location.href = '/login'
+    } catch (err) {
+      console.error('Account deletion failed:', err)
+      alert('Account verwijderen mislukt. Neem contact op met privacy@crowdbuilding.com.')
+      setDeleting(false)
+    }
   }
 
   async function handleSubmit(e) {
@@ -348,6 +421,68 @@ export default function Profile() {
               <button className="btn-secondary btn-sm" onClick={() => saveNotifPrefs({ mute_until: null })}>
                 Hervatten
               </button>
+            </div>
+          )}
+        </div>
+
+        {/* Privacy & Data */}
+        <div className="profile-section">
+          <h3 className="profile-section__title">
+            <i className="fa-solid fa-shield-halved" /> Privacy & gegevens
+          </h3>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
+            Op grond van de AVG heb je recht op inzage en verwijdering van je gegevens.
+            Lees ons <a href="/privacy">privacybeleid</a>.
+          </p>
+
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleExportData}
+              disabled={exporting}
+            >
+              <i className="fa-solid fa-download" />
+              {exporting ? 'Exporteren...' : 'Mijn gegevens downloaden'}
+            </button>
+
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ color: 'var(--accent-red)', borderColor: 'var(--accent-red)' }}
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <i className="fa-solid fa-trash" /> Account verwijderen
+            </button>
+          </div>
+
+          {showDeleteConfirm && (
+            <div className="cl-card" style={{ marginTop: 16, padding: 16, border: '1px solid var(--accent-red)', borderRadius: 'var(--radius-md)' }}>
+              <p style={{ fontWeight: 600, color: 'var(--accent-red)', marginBottom: 8 }}>
+                Weet je het zeker?
+              </p>
+              <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
+                Al je berichten, reacties, updates en lidmaatschappen worden permanent verwijderd.
+                Dit kan niet ongedaan worden gemaakt.
+              </p>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  style={{ background: 'var(--accent-red)' }}
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Verwijderen...' : 'Definitief verwijderen'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Annuleren
+                </button>
+              </div>
             </div>
           )}
         </div>

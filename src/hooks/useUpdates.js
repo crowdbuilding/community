@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger, friendlyError } from '../lib/logger'
+import { logAudit } from '../lib/audit'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -103,6 +104,7 @@ export function useUpdates() {
       .single()
 
     if (error) { logger.error('useUpdates.createUpdate', error); throw new Error(friendlyError(error)) }
+    logAudit('update.created', 'update', { resourceId: data?.id, projectId, metadata: { is_public: is_public || false } })
     // Optimistic: add to local state immediately
     if (data) setUpdates(prev => [data, ...prev])
     return data
@@ -156,6 +158,7 @@ export function useUpdates() {
       .eq('id', id)
 
     if (error) { logger.error('useUpdates.deleteUpdate', error); throw new Error(friendlyError(error)) }
+    logAudit('update.deleted', 'update', { resourceId: id, projectId })
   }
 
   return { updates, loading, createUpdate, editUpdate, deleteUpdate, toggleReaction, refetch: fetchUpdates }

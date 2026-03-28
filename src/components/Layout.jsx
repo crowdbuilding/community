@@ -9,9 +9,10 @@ function ThemeToggle() {
   const { mode, setMode } = useTheme()
 
   const modes = [
-    { value: 'light', icon: 'fa-solid fa-sun' },
-    { value: 'warm', icon: 'fa-solid fa-cloud-sun' },
-    { value: 'dark', icon: 'fa-solid fa-moon' },
+    { value: 'light', icon: 'fa-solid fa-sun', label: 'Licht' },
+    { value: 'warm', icon: 'fa-solid fa-cloud-sun', label: 'Warm' },
+    { value: 'dark', icon: 'fa-solid fa-moon', label: 'Donker' },
+    { value: 'contrast', icon: 'fa-solid fa-eye', label: 'Hoog contrast' },
   ]
 
   const current = modes.find(m => m.value === mode)
@@ -21,8 +22,8 @@ function ThemeToggle() {
     <button
       className="theme-toggle-btn"
       onClick={() => setMode(modes[nextIndex].value)}
-      title={`Thema: ${mode}`}
-      aria-label={`Thema: ${mode}`}
+      title={`Thema: ${current.label}`}
+      aria-label={`Thema: ${current.label}`}
     >
       <i className={current.icon} />
     </button>
@@ -32,8 +33,9 @@ function ThemeToggle() {
 export default function Layout() {
   return (
     <div className="app-layout">
+      <a href="#main-content" className="skip-link">Ga naar inhoud</a>
       <Sidebar />
-      <main className="main-content" role="main">
+      <main className="main-content" role="main" id="main-content">
         <div className="main-topbar">
           <GlobalSearch />
           <ThemeToggle />

@@ -1,0 +1,4 @@
+Contact: mailto:security@crowdbuilding.com
+Preferred-Languages: nl, en
+Canonical: https://community.crowdbuilding.io/.well-known/security.txt
+Expires: 2027-03-28T00:00:00.000Z

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger, friendlyError } from '../lib/logger'
+import { logAudit } from '../lib/audit'
 import { useAuth } from '../contexts/AuthContext'
 import { useProject } from '../contexts/ProjectContext'
 
@@ -126,6 +127,7 @@ export function usePosts() {
     try {
       await supabase.from('post_follows').upsert({ profile_id: user.id, post_id: data.id }, { onConflict: 'profile_id,post_id' })
     } catch (e) { /* ignore */ }
+    logAudit('post.created', 'post', { resourceId: data.id, projectId, metadata: { post_type: post_type || 'post' } })
     fetchPosts()
     return data
   }
@@ -249,6 +251,7 @@ export function usePosts() {
       logger.error('usePosts.deletePost', error)
       throw new Error(friendlyError(error))
     }
+    logAudit('post.deleted', 'post', { resourceId: postId, projectId })
     setPosts(prev => prev.filter(p => p.id !== postId))
   }
 
