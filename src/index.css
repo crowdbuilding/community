@@ -1,5 +1,23 @@
 /* ===== App-specific styles (uses Clean Design System tokens) ===== */
 
+/* Skip to content link (WCAG 2.1 AA) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 100000;
+  padding: 8px 16px;
+  background: var(--accent-primary);
+  color: #fff;
+  border-radius: var(--radius-md, 8px);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
 html, body {
   height: 100%;
   margin: 0;

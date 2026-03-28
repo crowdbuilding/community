@@ -32,8 +32,9 @@ function ThemeToggle() {
 export default function Layout() {
   return (
     <div className="app-layout">
+      <a href="#main-content" className="skip-link">Ga naar inhoud</a>
       <Sidebar />
-      <main className="main-content" role="main">
+      <main className="main-content" role="main" id="main-content">
         <div className="main-topbar">
           <GlobalSearch />
           <ThemeToggle />
