@@ -32,15 +32,27 @@ export function useSessionTimeout(enabled = true) {
     // Set warning timer
     warningRef.current = setTimeout(() => {
       warningShownRef.current = true
+
       const el = document.createElement('div')
       el.id = 'session-timeout-warning'
       el.className = 'session-timeout-warning'
-      el.innerHTML = `
-        <i class="fa-solid fa-clock"></i>
-        <span>Je sessie verloopt over 2 minuten wegens inactiviteit.</span>
-        <button onclick="this.parentElement.remove()">Doorgaan</button>
-      `
-      el.querySelector('button').addEventListener('click', resetTimer)
+
+      const icon = document.createElement('i')
+      icon.className = 'fa-solid fa-clock'
+      el.appendChild(icon)
+
+      const text = document.createElement('span')
+      text.textContent = 'Je sessie verloopt over 2 minuten wegens inactiviteit.'
+      el.appendChild(text)
+
+      const btn = document.createElement('button')
+      btn.textContent = 'Doorgaan'
+      btn.addEventListener('click', () => {
+        el.remove()
+        resetTimer()
+      })
+      el.appendChild(btn)
+
       document.body.appendChild(el)
     }, TIMEOUT_MS - WARNING_MS)
 
