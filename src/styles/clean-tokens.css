@@ -405,11 +405,16 @@
   box-shadow: none;
 }
 
-/* Roadmap items inside a phase: only top divider, no full outline */
+/* Roadmap items inside a phase: dividers between items, not on first */
 [data-theme="contrast"] .roadmap-phase .roadmap-item {
   border: none;
   border-top: 1px solid #000000;
+  border-radius: 0;
   box-shadow: none;
+}
+
+[data-theme="contrast"] .roadmap-phase .roadmap-item:first-child {
+  border-top: none;
 }
 
 /* Flat buttons: solid border, no shadow */
