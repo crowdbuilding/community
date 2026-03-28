@@ -2820,11 +2820,24 @@ select.input {
 
 /* ===== Events ===== */
 
+.events-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.events-filter-row .tag-filter,
+.events-filter-row .tag-filters {
+  margin-bottom: 0;
+}
+
 /* Tabs */
 .events-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 16px;
 }
 .events-tab {
   padding: 8px 16px;

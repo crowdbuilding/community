@@ -132,30 +132,31 @@ export default function Events() {
         </div>
       </div>
 
-      {/* Tabs: upcoming / past */}
-      <div className="events-tabs">
-        <button className={`events-tab ${tab === 'upcoming' ? 'events-tab--active' : ''}`} onClick={() => setTab('upcoming')}>
-          Aankomend {visibleUpcoming.length > 0 && <span className="events-tab__count">{visibleUpcoming.length}</span>}
-        </button>
-        <button className={`events-tab ${tab === 'past' ? 'events-tab--active' : ''}`} onClick={() => setTab('past')}>
-          Afgelopen {visiblePast.length > 0 && <span className="events-tab__count">{visiblePast.length}</span>}
-        </button>
-      </div>
-
-      {/* Type filter */}
-      {(visibleUpcoming.length > 0 || visiblePast.length > 0) && (
-        <div className="tag-filter">
-          {FILTER_TYPES.map(t => (
-            <button
-              key={t.key}
-              className={`tag-filter__pill ${typeFilter === t.key ? 'tag-filter__pill--active' : ''}`}
-              onClick={() => setTypeFilter(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
+      {/* Tabs + type filter on one row */}
+      <div className="events-filter-row">
+        <div className="events-tabs">
+          <button className={`events-tab ${tab === 'upcoming' ? 'events-tab--active' : ''}`} onClick={() => setTab('upcoming')}>
+            Aankomend {visibleUpcoming.length > 0 && <span className="events-tab__count">{visibleUpcoming.length}</span>}
+          </button>
+          <button className={`events-tab ${tab === 'past' ? 'events-tab--active' : ''}`} onClick={() => setTab('past')}>
+            Afgelopen {visiblePast.length > 0 && <span className="events-tab__count">{visiblePast.length}</span>}
+          </button>
         </div>
-      )}
+
+        {(visibleUpcoming.length > 0 || visiblePast.length > 0) && (
+          <div className="tag-filter">
+            {FILTER_TYPES.map(t => (
+              <button
+                key={t.key}
+                className={`tag-filter__pill ${typeFilter === t.key ? 'tag-filter__pill--active' : ''}`}
+                onClick={() => setTypeFilter(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {loading ? (
         <div className="loading-inline"><p>Events laden...</p></div>
