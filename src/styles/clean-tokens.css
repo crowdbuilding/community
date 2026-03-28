@@ -383,6 +383,7 @@
 }
 
 /* Flat design: ALL cards get solid 1px outline, no shadows */
+/* Cards: light gray background instead of outlines */
 [data-theme="contrast"] .cl-card,
 [data-theme="contrast"] .cl-card--elevated,
 [data-theme="contrast"] .dash-card,
@@ -401,14 +402,16 @@
 [data-theme="contrast"] .member-row,
 [data-theme="contrast"] .adviseur-card,
 [data-theme="contrast"] .feed-composer-prompt {
-  border: 1px solid #000000;
+  background: #F0F0F0;
+  border: none;
   box-shadow: none;
 }
 
-/* Roadmap items inside a phase: dividers between items, not on first */
+/* Roadmap items inside a phase: subtle dividers */
 [data-theme="contrast"] .roadmap-phase .roadmap-item {
+  background: transparent;
   border: none;
-  border-top: 1px solid #000000;
+  border-top: 1px solid #CCCCCC;
   border-radius: 0;
   box-shadow: none;
 }
@@ -456,15 +459,18 @@
   box-shadow: none;
 }
 
-/* Flat hover: no translateY/shadow lift, just background change */
+/* Flat hover: slightly darker background */
 [data-theme="contrast"] .cl-card:hover,
 [data-theme="contrast"] .cl-card--elevated:hover,
 [data-theme="contrast"] .dash-card:hover,
 [data-theme="contrast"] .feed-card:hover,
-[data-theme="contrast"] .project-card:hover {
+[data-theme="contrast"] .project-card:hover,
+[data-theme="contrast"] .update-card:hover,
+[data-theme="contrast"] .event-card:hover,
+[data-theme="contrast"] .member-card:hover {
   transform: none;
   box-shadow: none;
-  background: #F5F5F5;
+  background: #E6E6E6;
 }
 
 /* Larger icon buttons */
