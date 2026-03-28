@@ -303,9 +303,9 @@
    ============================================================================ */
 
 [data-theme="contrast"] {
-  --bg-page:             #FFFFFF;
+  --bg-page:             #EBEBEB;
   --bg-surface:          #FFFFFF;
-  --bg-hover:            #E6E6E6;
+  --bg-hover:            #E0E0E0;
   --bg-active:           #D9D9D9;
   --bg-selected:         #D0E0F0;
 
@@ -383,7 +383,7 @@
 }
 
 /* Flat design: ALL cards get solid 1px outline, no shadows */
-/* Cards: light gray background instead of outlines */
+/* Cards: white on gray page, no shadow, stroke on hover */
 [data-theme="contrast"] .cl-card,
 [data-theme="contrast"] .cl-card--elevated,
 [data-theme="contrast"] .dash-card,
@@ -402,9 +402,10 @@
 [data-theme="contrast"] .member-row,
 [data-theme="contrast"] .adviseur-card,
 [data-theme="contrast"] .feed-composer-prompt {
-  background: #F0F0F0;
-  border: none;
+  background: #FFFFFF;
+  border: 1px solid transparent;
   box-shadow: none;
+  transition: border-color 150ms;
 }
 
 /* Roadmap items inside a phase: subtle dividers */
@@ -459,18 +460,21 @@
   box-shadow: none;
 }
 
-/* Flat hover: slightly darker background */
+/* Hover: black stroke instead of shadow lift */
 [data-theme="contrast"] .cl-card:hover,
 [data-theme="contrast"] .cl-card--elevated:hover,
 [data-theme="contrast"] .dash-card:hover,
+[data-theme="contrast"] .dash-stat:hover,
 [data-theme="contrast"] .feed-card:hover,
 [data-theme="contrast"] .project-card:hover,
 [data-theme="contrast"] .update-card:hover,
 [data-theme="contrast"] .event-card:hover,
-[data-theme="contrast"] .member-card:hover {
+[data-theme="contrast"] .member-card:hover,
+[data-theme="contrast"] .adviseur-card:hover,
+[data-theme="contrast"] .feed-composer-prompt:hover {
   transform: none;
   box-shadow: none;
-  background: #E6E6E6;
+  border-color: #000000;
 }
 
 /* Larger icon buttons */
@@ -489,9 +493,9 @@
   box-shadow: none;
 }
 
-/* Sidebar: subtle background instead of borders */
+/* Sidebar: white on gray page, no border */
 [data-theme="contrast"] .cl-sidebar {
-  background: #F0F0F0;
+  background: #FFFFFF;
   border-right: none;
 }
 
