@@ -11,6 +11,7 @@ export function ProjectProvider({ children }) {
   const [project, setProject] = useState(null)
   const [milestones, setMilestones] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const membership = memberships.find(m => m.project_id === projectId)
 
@@ -25,13 +26,18 @@ export function ProjectProvider({ children }) {
 
     async function load() {
       setLoading(true)
+      setError(null)
       const [projectRes, milestonesRes] = await Promise.all([
         supabase.from('projects').select('*').eq('id', projectId).single(),
         supabase.from('milestones').select('*').eq('project_id', projectId).order('sort_order'),
       ])
-      setProject(projectRes.data)
+      if (projectRes.error) {
+        console.error('ProjectContext: failed to load project', projectRes.error)
+        setError(projectRes.error)
+      } else {
+        setProject(projectRes.data)
+      }
       setMilestones(milestonesRes.data || [])
-
       setLoading(false)
     }
 
@@ -45,7 +51,7 @@ export function ProjectProvider({ children }) {
   } : {}
 
   return (
-    <ProjectContext.Provider value={{ project, milestones, role, membership, loading, branding }}>
+    <ProjectContext.Provider value={{ project, milestones, role, membership, loading, error, branding }}>
       {children}
     </ProjectContext.Provider>
   )

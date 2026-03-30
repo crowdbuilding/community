@@ -1,0 +1,1 @@
+ALTER TABLE public_sections ADD COLUMN IF NOT EXISTS text_size TEXT NOT NULL DEFAULT 'normal';

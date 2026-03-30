@@ -1,6 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { uploadPostImage } from '../hooks/usePosts'
 import { EVENT_TYPES, EVENT_VISIBILITY } from '../lib/constants'
+import { useToast } from './Toast'
+
+const DRAFT_KEY = 'ev-draft-new'
 
 export default function EventModal({ event, onSave, onClose }) {
   const isEdit = !!event
@@ -14,30 +17,62 @@ export default function EventModal({ event, onSave, onClose }) {
     : null
   const existingEndTime = existingEndDate ? existingEndDate.toTimeString().slice(0, 5) : ''
 
-  const [title, setTitle] = useState(event?.title || '')
-  const [description, setDescription] = useState(event?.description || '')
-  const [eventType, setEventType] = useState(event?.event_type || 'overig')
-  const [date, setDate] = useState(existingDateStr)
-  const [time, setTime] = useState(existingTime)
-  const [endTime, setEndTime] = useState(existingEndTime)
-  const [locationType, setLocationType] = useState(event?.online_url ? 'online' : 'physical')
-  const [location, setLocation] = useState(event?.location || '')
-  const [onlineUrl, setOnlineUrl] = useState(event?.online_url || '')
-  const [maxAttendees, setMaxAttendees] = useState(event?.max_attendees ? String(event.max_attendees) : '')
-  const [visibility, setVisibility] = useState(event?.visibility || 'members')
+  // For new events: restore draft from localStorage if available
+  const draft = !isEdit ? (() => { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null') } catch { return null } })() : null
+
+  const [title, setTitle] = useState(draft?.title ?? event?.title ?? '')
+  const [description, setDescription] = useState(draft?.description ?? event?.description ?? '')
+  const [eventType, setEventType] = useState(draft?.eventType ?? event?.event_type ?? 'overig')
+  const [date, setDate] = useState(draft?.date ?? existingDateStr)
+  const [time, setTime] = useState(draft?.time ?? existingTime)
+  const [endTime, setEndTime] = useState(draft?.endTime ?? existingEndTime)
+  const [locationType, setLocationType] = useState(draft?.locationType ?? (event?.online_url ? 'online' : 'physical'))
+  const [location, setLocation] = useState(draft?.location ?? event?.location ?? '')
+  const [onlineUrl, setOnlineUrl] = useState(draft?.onlineUrl ?? event?.online_url ?? '')
+  const [maxAttendees, setMaxAttendees] = useState(draft?.maxAttendees ?? (event?.max_attendees ? String(event.max_attendees) : ''))
+  const [visibility, setVisibility] = useState(draft?.visibility ?? event?.visibility ?? 'members')
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(event?.image_url || null)
   const [saving, setSaving] = useState(false)
   const fileRef = useRef(null)
+  const mouseDownOnOverlay = useRef(false)
+  const draftTimerRef = useRef(null)
+  const toast = useToast()
+
+  // Persist draft to localStorage with debounce (new events only)
+  useEffect(() => {
+    if (isEdit) return
+    clearTimeout(draftTimerRef.current)
+    draftTimerRef.current = setTimeout(() => {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, description, eventType, date, time, endTime, locationType, location, onlineUrl, maxAttendees, visibility }))
+    }, 400)
+    return () => clearTimeout(draftTimerRef.current)
+  }, [isEdit, title, description, eventType, date, time, endTime, locationType, location, onlineUrl, maxAttendees, visibility])
+
+  function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY)
+  }
+
+  // Track object URLs we create so we can revoke them to prevent memory leaks
+  const objectUrlRef = useRef(null)
 
   function handleImageSelect(e) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+    const url = URL.createObjectURL(file)
+    objectUrlRef.current = url
     setImageFile(file)
-    setImagePreview(URL.createObjectURL(file))
+    setImagePreview(url)
   }
 
+  // Revoke object URL on unmount
+  useEffect(() => {
+    return () => { if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current) }
+  }, [])
+
   function removeImage() {
+    if (objectUrlRef.current) { URL.revokeObjectURL(objectUrlRef.current); objectUrlRef.current = null }
     setImageFile(null)
     setImagePreview(null)
     if (fileRef.current) fileRef.current.value = ''
@@ -78,21 +113,31 @@ export default function EventModal({ event, onSave, onClose }) {
         visibility,
         image_url,
       })
+      clearDraft()
       onClose()
     } catch (err) {
       console.error('Error saving event:', err)
-      alert('Er ging iets mis bij het opslaan.')
+      toast.error(err.message || 'Er ging iets mis bij het opslaan.')
     } finally {
       setSaving(false)
     }
   }
 
+  function handleCancel() {
+    clearDraft()
+    onClose()
+  }
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-card modal-card--event" onClick={e => e.stopPropagation()}>
+    <div
+      className="modal-overlay"
+      onMouseDown={e => { mouseDownOnOverlay.current = e.target === e.currentTarget }}
+      onClick={e => { if (mouseDownOnOverlay.current && e.target === e.currentTarget) handleCancel() }}
+    >
+      <div className="modal-card modal-card--event">
         <div className="modal-header">
           <h2>{isEdit ? 'Event bewerken' : 'Nieuw event'}</h2>
-          <button className="modal-close" onClick={onClose} aria-label="Sluiten">
+          <button className="modal-close" onClick={handleCancel} aria-label="Sluiten">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>
@@ -190,7 +235,7 @@ export default function EventModal({ event, onSave, onClose }) {
           <input ref={fileRef} type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
 
           <div className="modal-actions">
-            <button type="button" className="btn-secondary" onClick={onClose}>Annuleren</button>
+            <button type="button" className="btn-secondary" onClick={handleCancel}>Annuleren</button>
             <button type="submit" className="btn-primary" disabled={saving || !title.trim() || !date}>
               {saving ? 'Opslaan...' : isEdit ? 'Opslaan' : 'Aanmaken'}
             </button>

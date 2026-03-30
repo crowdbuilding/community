@@ -184,6 +184,14 @@ export function formatFileSize(bytes) {
   return `${(bytes / 1048576).toFixed(1)} MB`
 }
 
+// ===== Date helpers =====
+
+export const HOUR_MS = 3_600_000
+
+export const MONTHS_SHORT = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
+export const MONTHS_LONG  = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
+export const DAYS_LONG    = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag']
+
 // ===== Helpers =====
 
 export function timeAgo(dateStr) {

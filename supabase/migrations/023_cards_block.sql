@@ -1,0 +1,1 @@
+ALTER TABLE public_sections ADD COLUMN IF NOT EXISTS card_columns INT NOT NULL DEFAULT 3;

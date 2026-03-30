@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ProjectProvider } from './contexts/ProjectContext'
 import { ThemeProvider } from './contexts/ThemeContext'
@@ -30,6 +30,7 @@ import Ledenwerving from './views/Ledenwerving'
 import PrivacyPolicy from './views/PrivacyPolicy'
 import CookieConsent from './components/CookieConsent'
 import PublicProject from './views/PublicProject'
+import PageBuilder from './views/PageBuilder'
 
 function NotFound() {
   return (
@@ -75,8 +76,20 @@ function HomeRedirect() {
 }
 
 function MemberGate() {
-  const { membership, loading } = useProject()
+  const { membership, loading, error } = useProject()
   if (loading) return <div className="loading-page"><p>Laden...</p></div>
+  if (error) return (
+    <div className="error-boundary">
+      <div className="error-boundary__card">
+        <i className="fa-solid fa-triangle-exclamation error-boundary__icon" style={{ color: 'var(--accent-red)' }} />
+        <h2>Project kon niet geladen worden</h2>
+        <p>Probeer de pagina te vernieuwen. Als het probleem aanhoudt, neem dan contact op.</p>
+        <button className="btn-primary" onClick={() => window.location.reload()}>
+          <i className="fa-solid fa-rotate-right" /> Vernieuwen
+        </button>
+      </div>
+    </div>
+  )
   if (!membership) return <JoinProject />
   return <Layout />
 }
@@ -91,10 +104,20 @@ function ProjectShell() {
   )
 }
 
+function OrgThemeWrapper({ children }) {
+  const { orgId } = useParams()
+  return (
+    <ThemeProvider scope={`org-${orgId}`}>
+      {children}
+    </ThemeProvider>
+  )
+}
+
 function ProjectThemeWrapper({ children }) {
+  const { projectId } = useParams()
   const { branding } = useProject()
   return (
-    <ThemeProvider projectBranding={branding}>
+    <ThemeProvider projectBranding={branding} scope={`project-${projectId}`}>
       {children}
     </ThemeProvider>
   )
@@ -118,9 +141,9 @@ export default function App() {
             <Route path="/" element={<AuthGuard><HomeRedirect /></AuthGuard>} />
 
             {/* Org-level routes */}
-            <Route path="/org/:orgId" element={<AuthGuard><OrgDashboard /></AuthGuard>} />
-            <Route path="/org/:orgId/settings" element={<AuthGuard><OrgSettings /></AuthGuard>} />
-            <Route path="/org/:orgId/new-project" element={<AuthGuard><NewProject /></AuthGuard>} />
+            <Route path="/org/:orgId" element={<AuthGuard><OrgThemeWrapper><OrgDashboard /></OrgThemeWrapper></AuthGuard>} />
+            <Route path="/org/:orgId/settings" element={<AuthGuard><OrgThemeWrapper><OrgSettings /></OrgThemeWrapper></AuthGuard>} />
+            <Route path="/org/:orgId/new-project" element={<AuthGuard><OrgThemeWrapper><NewProject /></OrgThemeWrapper></AuthGuard>} />
 
             {/* Project-level routes */}
             <Route path="/p/:projectId" element={<AuthGuard><ProjectShell /></AuthGuard>}>
@@ -136,7 +159,8 @@ export default function App() {
               <Route path="members" element={<Members />} />
               <Route path="ledenwerving" element={<Ledenwerving />} />
               <Route path="profile" element={<Profile />} />
-              {/* Settings moved to org dashboard */}
+              <Route path="settings" element={<Settings />} />
+              <Route path="page-builder" element={<PageBuilder />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

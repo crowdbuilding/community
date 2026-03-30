@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger, friendlyError } from '../lib/logger'
 import { useAuth } from '../contexts/AuthContext'
@@ -9,8 +9,14 @@ export function useEvents() {
   const { project } = useProject()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const mountedRef = useRef(true)
 
   const projectId = project?.id
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   const fetchEvents = useCallback(async () => {
     if (!projectId) return
@@ -21,6 +27,8 @@ export function useEvents() {
       .select('*, event_rsvps(profile_id, status, profile:profiles(full_name, avatar_url)), meeting_files(id)')
       .eq('project_id', projectId)
       .order('date', { ascending: true })
+
+    if (!mountedRef.current) return
 
     if (error) {
       logger.error('useEvents.fetch', error)
@@ -54,14 +62,14 @@ export function useEvents() {
   const upcoming = events.filter(e => new Date(e.date) >= now)
   const past = events.filter(e => new Date(e.date) < now)
 
-  async function createEvent({ title, description, date, location, online_url, max_attendees, duration_hours, event_type, image_url }) {
+  async function createEvent({ title, description, date, location, online_url, max_attendees, duration_hours, event_type, visibility, image_url }) {
     const { data, error } = await supabase
       .from('meetings')
-      .insert({ project_id: projectId, title, description, date, location, online_url, max_attendees, duration_hours, event_type, image_url })
+      .insert({ project_id: projectId, title, description, date, location, online_url, max_attendees, duration_hours, event_type, visibility, image_url })
       .select('*')
       .single()
     if (error) { logger.error('useEvents.createEvent', error); throw new Error(friendlyError(error)) }
-    fetchEvents()
+    // Realtime subscription will trigger fetchEvents automatically
     return data
   }
 
@@ -71,7 +79,7 @@ export function useEvents() {
       .update(updates)
       .eq('id', eventId)
     if (error) { logger.error('useEvents.updateEvent', error); throw new Error(friendlyError(error)) }
-    fetchEvents()
+    // Realtime subscription will trigger fetchEvents automatically
   }
 
   async function rsvp(meetingId, status) {
