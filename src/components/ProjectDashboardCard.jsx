@@ -13,7 +13,7 @@ export default function ProjectDashboardCard({ project, onSaved }) {
 
   return (
     <div className="org-project-card">
-      <div className="org-project-card__body" onClick={() => navigate(`/p/${project.project_id}`)}>
+      <div className="org-project-card__body" onClick={() => navigate(`/p/${project.slug || project.project_id}`)}>
         {/* Section 1: Header — logo, naam, locatie + actions rechtsboven */}
         <div className="org-project-card__top">
           <div className="org-project-card__header">
@@ -42,7 +42,7 @@ export default function ProjectDashboardCard({ project, onSaved }) {
             <button className="org-project-card__action-btn" onClick={() => setEditing(!editing)} title="Instellingen">
               <i className="fa-solid fa-gear" />
             </button>
-            <button className="org-project-card__action-btn" onClick={() => navigate(`/p/${project.project_id}`)} title="Naar project">
+            <button className="org-project-card__action-btn" onClick={() => navigate(`/p/${project.slug || project.project_id}`)} title="Naar project">
               <i className="fa-solid fa-arrow-right" />
             </button>
           </div>
@@ -112,6 +112,10 @@ function ProjectEditForm({ project, onClose, onSaved }) {
   const [uploadingCover, setUploadingCover] = useState(false)
   const [intakeEnabled, setIntakeEnabled] = useState(project.intake_enabled || false)
   const [intakeIntro, setIntakeIntro] = useState(project.intake_intro_text || '')
+  const [isPublic, setIsPublic] = useState(project.is_public || false)
+  const [slug, setSlug] = useState(project.slug || '')
+  const [publicDescription, setPublicDescription] = useState(project.public_description || '')
+  const [publicContactEmail, setPublicContactEmail] = useState(project.public_contact_email || '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const logoRef = useRef(null)
@@ -161,6 +165,10 @@ function ProjectEditForm({ project, onClose, onSaved }) {
         cover_image_url: coverImageUrl || null,
         intake_enabled: intakeEnabled,
         intake_intro_text: intakeIntro.trim() || null,
+        is_public: isPublic,
+        slug: slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') || null,
+        public_description: publicDescription.trim() || null,
+        public_contact_email: publicContactEmail.trim() || null,
       })
       .eq('id', project.project_id)
 
@@ -285,6 +293,59 @@ function ProjectEditForm({ project, onClose, onSaved }) {
                 onReorder={reorderQuestions}
               />
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* Publieke pagina */}
+      <div className="org-edit__section">
+        <h4 className="org-edit__title"><i className="fa-solid fa-globe" style={{ color: 'var(--accent-green)' }} /> Publieke projectpagina</h4>
+        <p className="form-hint" style={{ marginBottom: 12 }}>
+          Een openbare pagina voor omwonenden en geïnteresseerden.
+        </p>
+        <label className="intake-toggle">
+          <input type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)} />
+          <span>Publieke pagina actief</span>
+        </label>
+        {isPublic && (
+          <div className="org-edit__grid" style={{ marginTop: 16 }}>
+            <div className="form-group">
+              <label>URL-slug</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14, color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>/project/</span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                  placeholder="vlinderhaven"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Contact e-mail (publiek)</label>
+              <input
+                type="email"
+                value={publicContactEmail}
+                onChange={e => setPublicContactEmail(e.target.value)}
+                placeholder="info@project.nl"
+              />
+            </div>
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label>Publieke beschrijving</label>
+              <textarea
+                value={publicDescription}
+                onChange={e => setPublicDescription(e.target.value)}
+                placeholder="Korte beschrijving voor bezoekers die het project nog niet kennen..."
+                rows={3}
+              />
+              <span className="form-hint">Laat leeg om de standaard projectbeschrijving te gebruiken.</span>
+            </div>
+            {slug && (
+              <p style={{ gridColumn: '1 / -1', fontSize: 13, color: 'var(--text-tertiary)' }}>
+                <i className="fa-solid fa-link" style={{ marginRight: 6 }} />
+                Pagina zichtbaar op: <strong>{window.location.origin}/project/{slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')}</strong>
+              </p>
+            )}
           </div>
         )}
       </div>

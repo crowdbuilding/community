@@ -10,7 +10,7 @@ import IntakeResponseDetail from '../components/IntakeResponseDetail'
 export default function Ledenwerving() {
   const { project } = useProject()
   const { questions, addQuestion, updateQuestion, deleteQuestion, reorderQuestions } = useIntakeQuestions(project?.id)
-  const { responses, pending, invited, joined, rejected, updateStatus } = useIntakeResponses(project?.id)
+  const { responses, pending, invited, joined, rejected, updateStatus } = useIntakeResponses(project?.id, project?.name)
 
   const [tab, setTab] = useState('responses') // responses | form
   const [selectedResponse, setSelectedResponse] = useState(null)
@@ -253,7 +253,7 @@ export default function Ledenwerving() {
         <IntakeResponseDetail
           response={selectedResponse}
           questions={questions}
-          projectId={project?.id}
+          projectId={project?.slug || project?.id}
           onClose={() => setSelectedResponse(null)}
           onInvite={async () => { await updateStatus(selectedResponse.id, 'invited') }}
           onReject={async () => { await updateStatus(selectedResponse.id, 'rejected') }}

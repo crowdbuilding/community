@@ -68,9 +68,9 @@ function HomeRedirect() {
   // Org admin → org dashboard
   if (isOrgAdmin && primaryOrgId) return <Navigate to={`/org/${primaryOrgId}`} replace />
   // Single project member → project
-  if (memberships.length === 1) return <Navigate to={`/p/${memberships[0].project_id}`} replace />
+  if (memberships.length === 1) return <Navigate to={`/p/${memberships[0].projects?.slug || memberships[0].project_id}`} replace />
   // Multi-project member → first project (TODO: project selector)
-  if (memberships.length > 1) return <Navigate to={`/p/${memberships[0].project_id}`} replace />
+  if (memberships.length > 1) return <Navigate to={`/p/${memberships[0].projects?.slug || memberships[0].project_id}`} replace />
 
   return <div className="empty-state"><h2>Welkom</h2><p>Je bent nog niet lid van een project.</p></div>
 }
@@ -114,10 +114,10 @@ function OrgThemeWrapper({ children }) {
 }
 
 function ProjectThemeWrapper({ children }) {
-  const { projectId } = useParams()
+  const { slug } = useParams()
   const { branding } = useProject()
   return (
-    <ThemeProvider projectBranding={branding} scope={`project-${projectId}`}>
+    <ThemeProvider projectBranding={branding} scope={`project-${slug}`}>
       {children}
     </ThemeProvider>
   )
@@ -146,7 +146,7 @@ export default function App() {
             <Route path="/org/:orgId/new-project" element={<AuthGuard><OrgThemeWrapper><NewProject /></OrgThemeWrapper></AuthGuard>} />
 
             {/* Project-level routes */}
-            <Route path="/p/:projectId" element={<AuthGuard><ProjectShell /></AuthGuard>}>
+            <Route path="/p/:slug" element={<AuthGuard><ProjectShell /></AuthGuard>}>
               <Route index element={<Dashboard />} />
               <Route path="updates" element={<Updates />} />
               <Route path="documenten" element={<Documents />} />

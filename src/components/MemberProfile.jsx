@@ -140,7 +140,7 @@ export default function MemberProfile({ profileId, membership, onClose, canManag
 
             {/* Edit own profile — navigate to profile page */}
             {isMe && (
-              <button className="btn-secondary member-profile__edit-btn" onClick={() => { onClose(); navigate(`/p/${project?.id}/profile`) }}>
+              <button className="btn-secondary member-profile__edit-btn" onClick={() => { onClose(); navigate(`/p/${project?.slug}/profile`) }}>
                 <i className="fa-solid fa-pen" /> Profiel bewerken
               </button>
             )}

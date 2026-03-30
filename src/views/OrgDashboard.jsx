@@ -10,6 +10,7 @@ const THEME_MODES = [
   { value: 'light', icon: 'fa-solid fa-sun' },
   { value: 'warm', icon: 'fa-solid fa-cloud-sun' },
   { value: 'dark', icon: 'fa-solid fa-moon' },
+  { value: 'contrast', icon: 'fa-solid fa-circle-half-stroke' },
 ]
 
 function ThemeToggle({ mode, setMode }) {
@@ -56,6 +57,12 @@ export default function OrgDashboard() {
         project_id: p.id, project_name: p.name, project_location: p.location,
         project_tagline: p.tagline, project_logo_url: p.logo_url,
         project_cover_image_url: p.cover_image_url,
+        project_description: p.description,
+        is_public: p.is_public, slug: p.slug,
+        public_description: p.public_description,
+        public_contact_email: p.public_contact_email,
+        intake_enabled: p.intake_enabled,
+        intake_intro_text: p.intake_intro_text,
         member_count: 0, update_count: 0, post_count: 0, advisor_count: 0,
         new_updates_week: 0, new_posts_week: 0, new_members_week: 0,
       })))
@@ -189,7 +196,7 @@ export default function OrgDashboard() {
                     <div
                       key={p.project_id}
                       className="org-actions__item"
-                      onClick={() => navigate(`/p/${p.project_id}/members`)}
+                      onClick={() => navigate(`/p/${p.slug || p.project_id}/members`)}
                     >
                       <div className="org-actions__icon">
                         <i className="fa-solid fa-user-clock" />

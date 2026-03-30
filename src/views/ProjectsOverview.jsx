@@ -27,7 +27,7 @@ export default function ProjectsOverview() {
 
       <div className="projects-grid">
         {projects.map(p => (
-          <Link key={p.id} to={`/p/${p.id}`} className="project-card">
+          <Link key={p.id} to={`/p/${p.slug || p.id}`} className="project-card">
             {p.cover_image_url && (
               <div className="project-card-cover" style={{ backgroundImage: `url(${p.cover_image_url})` }} />
             )}

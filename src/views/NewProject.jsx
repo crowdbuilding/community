@@ -53,7 +53,7 @@ export default function NewProject() {
         .single()
 
       if (error) throw error
-      navigate(`/p/${project.id}`)
+      navigate(`/p/${project.slug || project.id}`)
     } catch (err) {
       console.error('Error creating project:', err)
       alert('Project aanmaken mislukt.')

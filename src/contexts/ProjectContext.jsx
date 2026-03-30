@@ -6,14 +6,15 @@ import { useAuth } from './AuthContext'
 const ProjectContext = createContext(null)
 
 export function ProjectProvider({ children }) {
-  const { projectId } = useParams()
+  const { slug } = useParams()
   const { user, memberships, orgMemberships, isOrgAdmin, reload: reloadAuth } = useAuth()
   const [project, setProject] = useState(null)
   const [milestones, setMilestones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const membership = memberships.find(m => m.project_id === projectId)
+  // Membership is keyed by UUID; wait for project to load first
+  const membership = project ? memberships.find(m => m.project_id === project.id) : null
 
   // Org admins get admin access to all projects in their org
   const isOrgAdminOfProject = isOrgAdmin && project?.organization_id &&
@@ -22,27 +23,33 @@ export function ProjectProvider({ children }) {
   const role = membership?.role || (isOrgAdminOfProject ? 'admin' : 'guest')
 
   useEffect(() => {
-    if (!projectId || !user) return
+    if (!slug || !user) return
 
     async function load() {
       setLoading(true)
       setError(null)
-      const [projectRes, milestonesRes] = await Promise.all([
-        supabase.from('projects').select('*').eq('id', projectId).single(),
-        supabase.from('milestones').select('*').eq('project_id', projectId).order('sort_order'),
-      ])
-      if (projectRes.error) {
+
+      // Fetch project by slug first, then fetch milestones using the UUID
+      const projectRes = await supabase.from('projects').select('*').eq('slug', slug).single()
+      if (projectRes.error || !projectRes.data) {
         console.error('ProjectContext: failed to load project', projectRes.error)
-        setError(projectRes.error)
-      } else {
-        setProject(projectRes.data)
+        setError(projectRes.error || new Error('Project niet gevonden'))
+        setLoading(false)
+        return
       }
+      setProject(projectRes.data)
+
+      const milestonesRes = await supabase
+        .from('milestones')
+        .select('*')
+        .eq('project_id', projectRes.data.id)
+        .order('sort_order')
       setMilestones(milestonesRes.data || [])
       setLoading(false)
     }
 
     load()
-  }, [projectId, user])
+  }, [slug, user])
 
   const branding = project ? {
     brand_primary_color: project.brand_primary_color,

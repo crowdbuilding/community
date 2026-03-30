@@ -10,7 +10,7 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const navigate = useNavigate()
-  const basePath = `/p/${project?.id || ''}`
+  const basePath = `/p/${project?.slug || ''}`
 
   // Close on outside click
   useEffect(() => {

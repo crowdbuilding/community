@@ -16,7 +16,7 @@ export default function Members() {
   const { project, role } = useProject()
   const { user } = useAuth()
   const { members, loading, updateRole, removeMember, approveMember, rejectMember } = useMembers()
-  const { pending: intakeResponses, updateStatus: updateIntakeStatus } = useIntakeResponses(project?.id)
+  const { pending: intakeResponses, updateStatus: updateIntakeStatus } = useIntakeResponses(project?.id, project?.name)
   const { questions: intakeQuestions } = useIntakeQuestions(project?.id)
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
@@ -185,14 +185,14 @@ export default function Members() {
       )}
 
       {showInvite && (
-        <InviteModal projectName={project?.name} projectId={project?.id} onClose={() => setShowInvite(false)} />
+        <InviteModal projectName={project?.name} projectId={project?.slug || project?.id} onClose={() => setShowInvite(false)} />
       )}
 
       {selectedIntake && (
         <IntakeResponseDetail
           response={selectedIntake}
           questions={intakeQuestions}
-          projectId={project?.id}
+          projectId={project?.slug || project?.id}
           onClose={() => setSelectedIntake(null)}
           onInvite={async () => { await updateIntakeStatus(selectedIntake.id, 'invited'); setSelectedIntake(null) }}
           onReject={async () => { await updateIntakeStatus(selectedIntake.id, 'rejected'); setSelectedIntake(null) }}

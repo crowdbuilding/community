@@ -15,7 +15,7 @@ export default function BottomNav() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const basePath = `/p/${project?.id || ''}`
+  const basePath = `/p/${project?.slug || ''}`
 
   function isActive(to) {
     if (to === '') return location.pathname === basePath || location.pathname === basePath + '/'

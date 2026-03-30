@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { logger, friendlyError } from '../lib/logger'
 
-export default function useIntakeResponses(projectId) {
+export default function useIntakeResponses(projectId, projectName) {
   const [responses, setResponses] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -23,12 +23,29 @@ export default function useIntakeResponses(projectId) {
     setLoading(false)
   }
 
-  async function updateStatus(id, status) {
+  async function updateStatus(id, status, reason = null) {
     const updates = { status }
     if (status === 'invited') updates.invited_at = new Date().toISOString()
 
     const { error } = await supabase.from('intake_responses').update(updates).eq('id', id)
     if (error) { logger.error('useIntakeResponses.updateStatus', error); throw new Error(friendlyError(error)) }
+
+    // Send rejection email (best-effort, non-blocking)
+    if (status === 'rejected') {
+      const response = responses.find(r => r.id === id)
+      if (response?.email) {
+        supabase.functions.invoke('send-member-email', {
+          body: {
+            type: 'rejection',
+            memberName: response.name,
+            memberEmail: response.email,
+            projectName: projectName || 'het project',
+            reason: reason || null,
+          },
+        }).catch(err => logger.error('useIntakeResponses.rejectEmail', err))
+      }
+    }
+
     setResponses(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r))
     return true
   }

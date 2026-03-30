@@ -35,6 +35,13 @@ const NAV_SECTIONS = [
       { to: 'ledenwerving', icon: 'fa-solid fa-clipboard-list', color: 'var(--accent-orange, #F09020)', label: 'Ledenwerving', action: 'manage_intake' },
     ]
   },
+  {
+    label: 'Beheer',
+    items: [
+      { to: 'page-builder', icon: 'fa-solid fa-wand-magic-sparkles', color: 'var(--accent-purple, #7B5EA7)', label: 'Pagina bouwer', adminOnly: true },
+      { to: 'settings', icon: 'fa-solid fa-gear', color: 'var(--text-tertiary)', label: 'Instellingen', adminOnly: true },
+    ]
+  },
 ]
 
 export default function Sidebar() {
@@ -45,7 +52,7 @@ export default function Sidebar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
-  const basePath = `/p/${project?.id || ''}`
+  const basePath = `/p/${project?.slug || ''}`
   const isProfessional = role === 'professional'
   const [intakePendingCount, setIntakePendingCount] = useState(0)
 
@@ -131,6 +138,7 @@ export default function Sidebar() {
 
           const visibleItems = section.items.filter(item => {
             if (item.membersOnly && isProfessional) return false
+            if (item.adminOnly && role !== 'admin') return false
             if (item.action && !canDo(role, item.action)) return false
             return true
           })
