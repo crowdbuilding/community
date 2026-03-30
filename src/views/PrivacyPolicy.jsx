@@ -1,6 +1,6 @@
 export default function PrivacyPolicy() {
   return (
-    <div className="login-page" style={{ overflow: 'auto' }}>
+    <div className="login-page" style={{ alignItems: 'flex-start', overflow: 'auto' }}>
       <div className="cl-card cl-card--elevated" style={{ maxWidth: 720, margin: '40px auto', padding: '32px 28px' }}>
         <h1 style={{ marginBottom: 4 }}>Privacybeleid</h1>
         <p style={{ color: 'var(--text-tertiary)', fontSize: 14, marginBottom: 24 }}>
