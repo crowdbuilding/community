@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
+import { isOrgDomain } from '../lib/subdomain'
 import ProjectDashboardCard from '../components/ProjectDashboardCard'
 import NewProjectCard from '../components/NewProjectCard'
 
@@ -23,11 +24,14 @@ function ThemeToggle({ mode, setMode }) {
   )
 }
 
-export default function OrgDashboard() {
-  const { orgId } = useParams()
+export default function OrgDashboard({ orgId: orgIdProp }) {
+  const params = useParams()
+  const orgId = orgIdProp || params.orgId
   const { isOrgAdmin, primaryOrg } = useAuth()
   const { mode, setMode } = useTheme()
   const navigate = useNavigate()
+  const settingsPath = isOrgDomain() ? '/settings' : `/org/${orgId}/settings`
+  const newProjectPath = isOrgDomain() ? '/new-project' : `/org/${orgId}/new-project`
   const [org, setOrg] = useState(null)
   const [projects, setProjects] = useState([])
   const [pendingByProject, setPendingByProject] = useState([])
@@ -131,7 +135,7 @@ export default function OrgDashboard() {
           <ThemeToggle mode={mode} setMode={setMode} />
           {isOrgAdmin && (
             <>
-              <button className="btn-secondary" onClick={() => navigate(`/org/${orgId}/settings`)} aria-label="Instellingen">
+              <button className="btn-secondary" onClick={() => navigate(settingsPath)} aria-label="Instellingen">
                 <i className="fa-solid fa-gear" />
               </button>
               <button className="btn-primary" onClick={() => setCreatingNew(true)}>

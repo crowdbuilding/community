@@ -380,8 +380,9 @@ function ContentBlock({ section, updates, events, onUpdateClick, onEventClick })
 
 /* ==================== Main Component ==================== */
 
-export default function PublicProject() {
-  const { slug } = useParams()
+export default function PublicProject({ slugOverride }) {
+  const params = useParams()
+  const slug = slugOverride || params.slug
   const isPreview = new URLSearchParams(window.location.search).get('preview') === '1'
   const [project, setProject] = useState(null)
   const [sections, setSections] = useState([])

@@ -46,13 +46,11 @@ const NAV_SECTIONS = [
 
 export default function Sidebar() {
   const { profile, isOrgAdmin, primaryOrgId } = useAuth()
-  const { project, role } = useProject()
+  const { project, role, basePath } = useProject()
   const navigate = useNavigate()
   const location = useLocation()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const menuRef = useRef(null)
-
-  const basePath = `/p/${project?.slug || ''}`
   const isProfessional = role === 'professional'
   const [intakePendingCount, setIntakePendingCount] = useState(0)
 

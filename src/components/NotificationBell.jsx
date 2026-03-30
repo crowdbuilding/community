@@ -5,12 +5,11 @@ import { useProject } from '../contexts/ProjectContext'
 import { NOTIFICATION_CONFIG, timeAgo } from '../lib/constants'
 
 export default function NotificationBell() {
-  const { project } = useProject()
+  const { project, basePath } = useProject()
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
   const navigate = useNavigate()
-  const basePath = `/p/${project?.slug || ''}`
 
   // Close on outside click
   useEffect(() => {

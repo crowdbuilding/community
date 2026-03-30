@@ -9,14 +9,12 @@ import { canDo } from '../lib/permissions'
 import Skeleton from '../components/Skeleton'
 
 export default function Dashboard() {
-  const { project, role, loading } = useProject()
+  const { project, role, loading, basePath } = useProject()
   const { profile } = useAuth()
   const navigate = useNavigate()
   const { phases, activePhase, doneCount, totalCount, progressPct } = useRoadmap(project?.id)
   const [feed, setFeed] = useState({ nextEvent: null, latestUpdate: null, latestPosts: [], newMembers: [], intakePending: 0, stats: { members: 0, updates: 0 } })
   const [infoOpen, setInfoOpen] = useState(false)
-
-  const basePath = `/p/${project?.slug || ''}`
 
   useEffect(() => {
     if (!project?.id) return

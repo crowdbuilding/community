@@ -2,11 +2,13 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from './AuthContext'
+import { isProjectDomain } from '../lib/subdomain'
 
 const ProjectContext = createContext(null)
 
-export function ProjectProvider({ children }) {
-  const { slug } = useParams()
+export function ProjectProvider({ children, slugOverride }) {
+  const params = useParams()
+  const slug = slugOverride || params.slug
   const { user, memberships, orgMemberships, isOrgAdmin, reload: reloadAuth } = useAuth()
   const [project, setProject] = useState(null)
   const [milestones, setMilestones] = useState([])
@@ -57,8 +59,11 @@ export function ProjectProvider({ children }) {
     default_theme: project.default_theme,
   } : {}
 
+  const isSubdomain = isProjectDomain()
+  const basePath = isSubdomain ? '' : `/p/${project?.slug || ''}`
+
   return (
-    <ProjectContext.Provider value={{ project, milestones, role, membership, loading, error, branding }}>
+    <ProjectContext.Provider value={{ project, milestones, role, membership, loading, error, branding, basePath, isSubdomain }}>
       {children}
     </ProjectContext.Provider>
   )

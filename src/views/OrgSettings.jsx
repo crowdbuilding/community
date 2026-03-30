@@ -2,10 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { uploadImage } from '../lib/storage'
+import { isOrgDomain } from '../lib/subdomain'
 
-export default function OrgSettings() {
-  const { orgId } = useParams()
+export default function OrgSettings({ orgId: orgIdProp }) {
+  const params = useParams()
+  const orgId = orgIdProp || params.orgId
   const navigate = useNavigate()
+  const backPath = isOrgDomain() ? '/' : `/org/${orgId}`
   const [org, setOrg] = useState(null)
   const [name, setName] = useState('')
   const [logoUrl, setLogoUrl] = useState(null)
@@ -123,7 +126,7 @@ export default function OrgSettings() {
     <div className="org-dashboard">
       <header className="org-topbar">
         <div className="org-topbar__left">
-          <button className="btn-icon" onClick={() => navigate(`/org/${orgId}`)}>
+          <button className="btn-icon" onClick={() => navigate(backPath)}>
             <i className="fa-solid fa-arrow-left" />
           </button>
           <h1 className="org-topbar__name">Organisatie-instellingen</h1>

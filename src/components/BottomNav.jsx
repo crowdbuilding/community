@@ -11,11 +11,9 @@ const TABS = [
 ]
 
 export default function BottomNav() {
-  const { project, role } = useProject()
+  const { project, role, basePath } = useProject()
   const location = useLocation()
   const navigate = useNavigate()
-
-  const basePath = `/p/${project?.slug || ''}`
 
   function isActive(to) {
     if (to === '') return location.pathname === basePath || location.pathname === basePath + '/'

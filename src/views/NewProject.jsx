@@ -2,10 +2,13 @@ import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { uploadImage } from '../lib/storage'
+import { isProjectDomain, isOrgDomain } from '../lib/subdomain'
 
-export default function NewProject() {
-  const { orgId } = useParams()
+export default function NewProject({ orgId: orgIdProp }) {
+  const params = useParams()
+  const orgId = orgIdProp || params.orgId
   const navigate = useNavigate()
+  const backPath = isOrgDomain() ? '/' : `/org/${orgId}`
 
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
@@ -53,7 +56,7 @@ export default function NewProject() {
         .single()
 
       if (error) throw error
-      navigate(`/p/${project.slug || project.id}`)
+      navigate(isProjectDomain() ? '/' : `/p/${project.slug || project.id}`)
     } catch (err) {
       console.error('Error creating project:', err)
       alert('Project aanmaken mislukt.')
@@ -66,7 +69,7 @@ export default function NewProject() {
     <div className="org-dashboard">
       <header className="org-topbar">
         <div className="org-topbar__left">
-          <button className="btn-icon" onClick={() => navigate(`/org/${orgId}`)}>
+          <button className="btn-icon" onClick={() => navigate(backPath)}>
             <i className="fa-solid fa-arrow-left" />
           </button>
           <h1 className="org-topbar__name">Nieuw project</h1>
@@ -116,7 +119,7 @@ export default function NewProject() {
 
           {/* Submit */}
           <div className="profile-actions">
-            <button type="button" className="btn-secondary" onClick={() => navigate(`/org/${orgId}`)}>Annuleren</button>
+            <button type="button" className="btn-secondary" onClick={() => navigate(backPath)}>Annuleren</button>
             <button type="submit" className="btn-primary" disabled={saving || uploading || !name.trim()}>
               {saving ? 'Aanmaken...' : 'Project aanmaken'}
             </button>

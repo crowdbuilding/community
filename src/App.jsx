@@ -31,6 +31,7 @@ import PrivacyPolicy from './views/PrivacyPolicy'
 import CookieConsent from './components/CookieConsent'
 import PublicProject from './views/PublicProject'
 import PageBuilder from './views/PageBuilder'
+import { isOrgDomain, isProjectDomain, getProjectSlugFromSubdomain } from './lib/subdomain'
 
 function NotFound() {
   return (
@@ -123,6 +124,135 @@ function ProjectThemeWrapper({ children }) {
   )
 }
 
+// ==================== Subdomain routing ====================
+
+function SubdomainRouter() {
+  if (isOrgDomain()) return <OrgSubdomainApp />
+  if (isProjectDomain()) return <ProjectSubdomainApp slug={getProjectSlugFromSubdomain()} />
+  return <NormalRoutes />
+}
+
+function NormalRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/project/:slug" element={<PublicProject />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/intake/:projectId" element={<IntakeForm />} />
+
+      <Route path="/" element={<AuthGuard><HomeRedirect /></AuthGuard>} />
+
+      {/* Org-level routes */}
+      <Route path="/org/:orgId" element={<AuthGuard><OrgThemeWrapper><OrgDashboard /></OrgThemeWrapper></AuthGuard>} />
+      <Route path="/org/:orgId/settings" element={<AuthGuard><OrgThemeWrapper><OrgSettings /></OrgThemeWrapper></AuthGuard>} />
+      <Route path="/org/:orgId/new-project" element={<AuthGuard><OrgThemeWrapper><NewProject /></OrgThemeWrapper></AuthGuard>} />
+
+      {/* Project-level routes */}
+      <Route path="/p/:slug" element={<AuthGuard><ProjectShell /></AuthGuard>}>
+        <Route index element={<Dashboard />} />
+        <Route path="updates" element={<Updates />} />
+        <Route path="documenten" element={<Documents />} />
+        <Route path="pro-updates" element={<ProfessionalUpdates />} />
+        <Route path="adviseurs" element={<AdviseurTeam />} />
+        <Route path="community" element={<Community />} />
+        <Route path="events" element={<Events />} />
+        <Route path="roadmap" element={<Roadmap />} />
+        <Route path="documents" element={<DocumentArchive />} />
+        <Route path="members" element={<Members />} />
+        <Route path="ledenwerving" element={<Ledenwerving />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="page-builder" element={<PageBuilder />} />
+      </Route>
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  )
+}
+
+function OrgSubdomainApp() {
+  const { isOrgAdmin, primaryOrgId, loading, user } = useAuth()
+  if (loading) return <div className="loading-page"><p>Laden...</p></div>
+  if (!user) return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  )
+  if (!isOrgAdmin || !primaryOrgId) return (
+    <div className="error-boundary">
+      <div className="error-boundary__card">
+        <i className="fa-solid fa-lock error-boundary__icon" style={{ color: 'var(--accent-red)' }} />
+        <h2>Geen toegang</h2>
+        <p>Je hebt geen beheerderstoegang tot een organisatie.</p>
+        <a href="https://commoncity.nl" className="btn-primary" style={{ display: 'inline-block', marginTop: 16 }}>Terug</a>
+      </div>
+    </div>
+  )
+  return (
+    <ThemeProvider scope={`org-${primaryOrgId}`}>
+      <Routes>
+        <Route path="/login" element={<Navigate to="/" replace />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/" element={<OrgDashboard orgId={primaryOrgId} />} />
+        <Route path="/settings" element={<OrgSettings orgId={primaryOrgId} />} />
+        <Route path="/new-project" element={<NewProject orgId={primaryOrgId} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ThemeProvider>
+  )
+}
+
+function ProjectSubdomainApp({ slug }) {
+  return (
+    <ProjectProvider slugOverride={slug}>
+      <Routes>
+        {/* Public — no auth */}
+        <Route path="/public" element={<PublicProject slugOverride={slug} />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        {/* Authenticated project — all other paths */}
+        <Route path="/*" element={<AuthGuard><ProjectShellSubdomain /></AuthGuard>}>
+          <Route index element={<Dashboard />} />
+          <Route path="updates" element={<Updates />} />
+          <Route path="documenten" element={<Documents />} />
+          <Route path="pro-updates" element={<ProfessionalUpdates />} />
+          <Route path="adviseurs" element={<AdviseurTeam />} />
+          <Route path="community" element={<Community />} />
+          <Route path="events" element={<Events />} />
+          <Route path="roadmap" element={<Roadmap />} />
+          <Route path="documents" element={<DocumentArchive />} />
+          <Route path="members" element={<Members />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="ledenwerving" element={<Ledenwerving />} />
+          <Route path="page-builder" element={<PageBuilder />} />
+        </Route>
+      </Routes>
+    </ProjectProvider>
+  )
+}
+
+function ProjectShellSubdomain() {
+  return (
+    <ProjectThemeWrapperSubdomain>
+      <MemberGate />
+    </ProjectThemeWrapperSubdomain>
+  )
+}
+
+function ProjectThemeWrapperSubdomain({ children }) {
+  const { branding, project } = useProject()
+  return (
+    <ThemeProvider projectBranding={branding} scope={`project-${project?.slug}`}>
+      {children}
+    </ThemeProvider>
+  )
+}
+
+// ==================== Root ====================
+
 export default function App() {
   return (
     <ErrorBoundary>
@@ -131,39 +261,7 @@ export default function App() {
         <ThemeProvider>
           <ToastProvider>
           <ConfirmProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/project/:slug" element={<PublicProject />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/intake/:projectId" element={<IntakeForm />} />
-
-            <Route path="/" element={<AuthGuard><HomeRedirect /></AuthGuard>} />
-
-            {/* Org-level routes */}
-            <Route path="/org/:orgId" element={<AuthGuard><OrgThemeWrapper><OrgDashboard /></OrgThemeWrapper></AuthGuard>} />
-            <Route path="/org/:orgId/settings" element={<AuthGuard><OrgThemeWrapper><OrgSettings /></OrgThemeWrapper></AuthGuard>} />
-            <Route path="/org/:orgId/new-project" element={<AuthGuard><OrgThemeWrapper><NewProject /></OrgThemeWrapper></AuthGuard>} />
-
-            {/* Project-level routes */}
-            <Route path="/p/:slug" element={<AuthGuard><ProjectShell /></AuthGuard>}>
-              <Route index element={<Dashboard />} />
-              <Route path="updates" element={<Updates />} />
-              <Route path="documenten" element={<Documents />} />
-              <Route path="pro-updates" element={<ProfessionalUpdates />} />
-              <Route path="adviseurs" element={<AdviseurTeam />} />
-              <Route path="community" element={<Community />} />
-              <Route path="events" element={<Events />} />
-              <Route path="roadmap" element={<Roadmap />} />
-              <Route path="documents" element={<DocumentArchive />} />
-              <Route path="members" element={<Members />} />
-              <Route path="ledenwerving" element={<Ledenwerving />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="page-builder" element={<PageBuilder />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <SubdomainRouter />
           </ConfirmProvider>
           </ToastProvider>
         </ThemeProvider>
